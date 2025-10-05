@@ -14,11 +14,11 @@
     nodejs
     nodePackages.npm
     nodePackages.pnpm
-    rust-bin.stable.latest.default
     python313
     python313Packages.pip
     python313Packages.virtualenv
     dbeaver-bin
+    gitkraken
   ];
 
   programs = {

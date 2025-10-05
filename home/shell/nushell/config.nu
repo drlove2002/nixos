@@ -950,3 +950,5 @@ alias paste = ^xclip -selection clipboard -o
 alias nixbuild = sudo nixos-rebuild switch
 alias nixgc = sudo nix-collect-garbage
 alias nixrmold = sudo nix-env --delete-generations old
+alias ww = ssh ubuntu@35.171.134.147
+# -------

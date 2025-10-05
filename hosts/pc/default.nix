@@ -7,8 +7,8 @@
 {
   imports =
     [ # Include the results of the hardware scan.
-      ./font.nix
       ./hardware-configuration.nix
+      ./font.nix
     ];
 
   # Bootloader.
@@ -24,6 +24,7 @@
 
   # Enable networking
   networking.networkmanager.enable = true;
+  virtualisation.docker.enable = true;
 
   # Set your time zone.
   time.timeZone = "Asia/Kolkata";
@@ -84,7 +85,7 @@
   users.users.love = {
     isNormalUser = true;
     description = "Dr Love";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel" "docker" ];
   };
 
   # allow passwordless sudo for wheel group
@@ -111,6 +112,7 @@
   environment.systemPackages = with pkgs; [
     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     wget
+    tree
     parted
   ];
 
