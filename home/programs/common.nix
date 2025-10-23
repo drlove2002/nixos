@@ -19,10 +19,16 @@
     python313Packages.virtualenv
     dbeaver-bin
     gitkraken
+    unstable.ncspot
   ];
 
   programs = {
-    vscode.enable = true;
+
+    vscode = {
+      enable = true;
+      package = pkgs.unstable.vscode;
+    };
+
     btop.enable = true; # replacement of htop/nmon
     ssh.enable = true;
     aria2.enable = true;

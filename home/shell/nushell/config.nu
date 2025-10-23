@@ -940,6 +940,9 @@ path add "~/.local/bin"
 # You can remove duplicate directories from the path using:
 $env.PATH = ($env.PATH | uniq)
 
+$env.LANG = 'en_IN.UTF-8'
+$env.LC_ALL = 'en_IN.UTF-8'
+
 mkdir ($nu.data-dir | path join "vendor/autoload")
 starship init nu | save -f ($nu.data-dir | path join "vendor/autoload/starship.nu")
 
