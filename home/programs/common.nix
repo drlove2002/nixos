@@ -3,23 +3,27 @@
   inputs,
   system,
   ...
-}: {
+}:
+{
   home.packages = with pkgs; [
     zip
     unzip
     ripgrep
+    nixfmt-rfc-style
     obsidian
-    syncthing
     inputs.zen-browser.packages."${system}".default
+    dbeaver-bin
+    gitkraken
+    spotify
+    vlc
+
+    # Programming languages and tools
     nodejs
     nodePackages.npm
     nodePackages.pnpm
-    python313
-    python313Packages.pip
-    python313Packages.virtualenv
-    dbeaver-bin
-    gitkraken
-    unstable.ncspot
+    python312
+    python312Packages.pip
+    python312Packages.virtualenv
   ];
 
   programs = {
@@ -45,8 +49,6 @@
   };
 
   services = {
-    syncthing.enable = true;
-
     # auto mount usb drives
     udiskie.enable = true;
   };

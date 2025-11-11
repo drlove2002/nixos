@@ -2,7 +2,6 @@
   imports = [
     ./common.nix
     ./rust.nix
-    ./db.nix
     ./git.nix
     ./xdg.nix
     ./vim.nix

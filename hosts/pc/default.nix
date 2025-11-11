@@ -2,16 +2,22 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-      ./config.nix
-      ./font.nix
-      ./overlay.nix
-    ];
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+    ./config.nix
+    ./db.nix
+    ./font.nix
+    ./overlay.nix
+  ];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
@@ -26,7 +32,6 @@
 
   # Enable networking
   networking.networkmanager.enable = true;
-  virtualisation.docker.enable = true;
 
   # Set your time zone.
   time.timeZone = "Asia/Kolkata";
@@ -85,7 +90,10 @@
   users.users.love = {
     isNormalUser = true;
     description = "Dr Love";
-    extraGroups = [ "networkmanager" "wheel" "docker" ];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+    ];
   };
 
   # allow passwordless sudo for wheel group

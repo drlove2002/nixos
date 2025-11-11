@@ -946,12 +946,4 @@ $env.LC_ALL = 'en_IN.UTF-8'
 mkdir ($nu.data-dir | path join "vendor/autoload")
 starship init nu | save -f ($nu.data-dir | path join "vendor/autoload/starship.nu")
 
-# ALIASES
-# -------
-alias copy = ^xclip -selection clipboard
-alias paste = ^xclip -selection clipboard -o
-alias nixbuild = sudo nixos-rebuild switch
-alias nixgc = sudo nix-collect-garbage
-alias nixrmold = sudo nix-env --delete-generations old
-alias ww = ssh ubuntu@35.171.134.147
-# -------
+
