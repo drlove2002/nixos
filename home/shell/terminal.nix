@@ -8,7 +8,7 @@
     };
     settings = {
       enable_audio_bell = false;
-      shell = "nu";
+      shell = "zsh";
     };
     themeFile = "kanagawa_dragon";
   };

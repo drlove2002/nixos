@@ -1,7 +1,7 @@
 let _ = builtins.trace "Loading Shell" null; in
 {
   imports = [
-    ./nushell
+    ./zsh
     ./common.nix
     ./starship.nix
     ./terminal.nix
