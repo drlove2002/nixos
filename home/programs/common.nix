@@ -49,6 +49,11 @@
         "--exact"
       ];
     };
+
+    zoxide = {
+      enable = true;
+      enableNushellIntegration = true;
+    };
   };
 
   services = {
