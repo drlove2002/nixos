@@ -12,29 +12,32 @@
     nixfmt-rfc-style
     obsidian
     inputs.zen-browser.packages."${system}".default
+    inputs.antigravity-nix.packages."${system}".default
     dbeaver-bin
     gitkraken
     spotify
     vlc
 
     # Programming languages and tools
-    nodejs
     nodePackages.npm
     nodePackages.pnpm
     python312
     python312Packages.pip
     python312Packages.virtualenv
+    uv
   ];
 
   programs = {
-
     vscode = {
       enable = true;
       package = pkgs.unstable.vscode;
     };
 
-    btop.enable = true; # replacement of htop/nmon
-    ssh.enable = true;
+    btop.enable = true;
+    ssh = {
+      enable = true;
+      enableDefaultConfig = false;
+    };
     aria2.enable = true;
 
     skim = {
