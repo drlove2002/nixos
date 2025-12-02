@@ -1,15 +1,18 @@
 {
   pkgs,
   ...
-}: {
-  home.packages = [pkgs.gh];
+}:
+{
+  home.packages = [ pkgs.gh ];
 
   programs.git = {
     enable = true;
-    userName = "Sudip Roy";
-    userEmail = "sudiproy20yo@gmail.com";
-    extraConfig = {
-        init.defaultBranch = "main";
+    settings = {
+      user = {
+        name = "Sudip Roy";
+        email = "sudiproy20yo@gmail.com";
+      };
+      init.defaultBranch = "main";
     };
   };
 }

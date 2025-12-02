@@ -1,8 +1,9 @@
 {
   pkgs,
+  config,
   ...
 }:
-# nix tooling
+
 {
   home.packages = with pkgs; [
     alejandra
