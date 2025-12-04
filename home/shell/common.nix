@@ -10,30 +10,30 @@
     deadnix
     statix
     xclip
+    bat
+    btop
   ];
 
-  programs.direnv = {
-    enable = true;
-    nix-direnv.enable = true;
-    enableZshIntegration = true;
-  };
+  programs = {
+    direnv = {
+      enable = true;
+      nix-direnv.enable = true;
+      enableZshIntegration = true;
+    };
 
-  home.shellAliases = {
-    copy = "xclip -selection clipboard";
-    paste = "xclip -selection clipboard -o";
-    nixbuild = "sudo nixos-rebuild switch --upgrade";
-    nixgc = "sudo nix-collect-garbage";
-    nixrmold = "sudo nix-env --delete-generations old";
-    htop = "btop";
-  };
+    zoxide = {
+      enable = true;
+      enableNushellIntegration = true;
+    };
 
-  home.sessionVariables = {
-    EDITOR = "vim";
-    BROWSER = "zen-browser";
-    TERMINAL = "kitty";
-    DELTA_PAGER = "less -R";
-    MANPAGER = "sh -c 'col -bx | bat -l man -p'";
-    RUST_SRC_PATH = "${pkgs.rust.packages.stable.rustPlatform.rustLibSrc}";
-    WINEPREFIX = "${config.xdg.dataHome}/wine";
+    skim = {
+      enable = true;
+      enableZshIntegration = true;
+      defaultCommand = "rg --files --hidden";
+      changeDirWidgetOptions = [
+        "--preview 'exa --icons --git --color always -T -L 3 {} | head -200'"
+        "--exact"
+      ];
+    };
   };
 }

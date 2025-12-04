@@ -32,28 +32,11 @@
       enable = true;
       package = pkgs.unstable.vscode;
     };
-
-    btop.enable = true;
     ssh = {
       enable = true;
       enableDefaultConfig = false;
     };
     aria2.enable = true;
-
-    skim = {
-      enable = true;
-      enableZshIntegration = true;
-      defaultCommand = "rg --files --hidden";
-      changeDirWidgetOptions = [
-        "--preview 'exa --icons --git --color always -T -L 3 {} | head -200'"
-        "--exact"
-      ];
-    };
-
-    zoxide = {
-      enable = true;
-      enableNushellIntegration = true;
-    };
   };
 
   services = {
