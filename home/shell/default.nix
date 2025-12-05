@@ -3,11 +3,12 @@ let
 in
 {
   imports = [
-    ./zsh
+    ./zsh.nix
     ./aliases.nix
     ./common.nix
     ./starship.nix
     ./terminal.nix
+    ./btop.nix
   ];
 
 }

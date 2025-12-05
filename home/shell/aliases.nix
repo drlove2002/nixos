@@ -1,6 +1,7 @@
 { pkgs, config, ... }:
 {
   home.shellAliases = {
+    ff = "fastfetch";
     copy = "xclip -selection clipboard";
     paste = "xclip -selection clipboard -o";
     nixbuild = "sudo nixos-rebuild switch --upgrade";
@@ -9,6 +10,14 @@
     htop = "btop";
     cd = "z";
     cat = "bat";
+    ag = "antigravity";
+    grep = "rg";
+    find = "fd";
+
+    ls = "eza --icons always"; # default view
+    ll = "eza -bhl --icons --group-directories-first"; # long list
+    la = "eza -abhl --icons --group-directories-first"; # all list
+    lt = "eza --tree --level=2 --icons"; # tree
   };
 
   home.sessionVariables = {

@@ -11,7 +11,8 @@
     statix
     xclip
     bat
-    btop
+    eza
+    fd
   ];
 
   programs = {

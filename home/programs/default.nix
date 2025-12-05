@@ -2,16 +2,10 @@
   imports = [
     ./common.nix
     ./rust.nix
-    ./git.nix
+    ./git
     ./xdg.nix
     ./vim.nix
     ./discord.nix
+    ./neofetch.nix
   ];
-
-  # add environment variables
-  home.sessionVariables = {
-  };
-
-  home.shellAliases = {
-  };
 }
