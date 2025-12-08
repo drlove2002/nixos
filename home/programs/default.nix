@@ -7,5 +7,6 @@
     ./vim.nix
     ./discord.nix
     ./neofetch.nix
+    ./atuin.nix
   ];
 }
