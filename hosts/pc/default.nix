@@ -15,6 +15,7 @@
     ./hardware-configuration.nix
     ./config.nix
     ./db.nix
+    ./warp.nix
     ./font.nix
     ./overlay.nix
   ];
