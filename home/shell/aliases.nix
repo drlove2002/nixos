@@ -8,9 +8,9 @@
     nixgc = "sudo nix-collect-garbage";
     nixrmold = "sudo nix-env --delete-generations old";
     htop = "btop";
+    code = "codium";
     cd = "z";
     cat = "bat";
-    ag = "antigravity";
     grep = "rg";
     find = "fd";
 
@@ -21,7 +21,7 @@
   };
 
   home.sessionVariables = {
-    EDITOR = "vim";
+    EDITOR = "nvim";
     BROWSER = "zen-browser";
     TERMINAL = "kitty";
     DELTA_PAGER = "less -R";

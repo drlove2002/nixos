@@ -4,9 +4,10 @@
     ./rust.nix
     ./git
     ./xdg.nix
-    ./vim.nix
     ./discord.nix
     ./neofetch.nix
     ./atuin.nix
+    ./vscode.nix
+    ./nvim.nix
   ];
 }

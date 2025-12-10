@@ -3,7 +3,9 @@
 
 {
   nixpkgs.overlays = [
-    (final: prev:
+    inputs.nix-vscode-extensions.overlays.default
+    (
+      final: prev:
       let
         unstable-pkgs = import inputs.nixpkgs-unstable {
           system = prev.system;
@@ -20,6 +22,7 @@
         # Overlay Plasma and related packages from unstable for the latest version.
         # kdePackages = unstable-pkgs.kdePackages;
         # sddm = unstable-pkgs.sddm;
-      })
+      }
+    )
   ];
 }

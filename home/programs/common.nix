@@ -6,13 +6,13 @@
 }:
 {
   home.packages = with pkgs; [
+    perf
     zip
     unzip
     ripgrep
     nixfmt-rfc-style
     obsidian
     inputs.zen-browser.packages."${system}".default
-    inputs.antigravity-nix.packages."${system}".default
     dbeaver-bin
     gitkraken
     spotify
@@ -28,10 +28,6 @@
   ];
 
   programs = {
-    vscode = {
-      enable = true;
-      package = pkgs.unstable.vscode;
-    };
     ssh = {
       enable = true;
       enableDefaultConfig = false;
