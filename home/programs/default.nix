@@ -4,7 +4,7 @@
     ./rust.nix
     ./git
     ./xdg.nix
-    ./discord.nix
+    ./discord
     ./neofetch.nix
     ./atuin.nix
     ./vscode.nix
