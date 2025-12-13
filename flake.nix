@@ -12,6 +12,7 @@
       url = "github:nix-community/nix-vscode-extensions";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
+    nixcord.url = "github:kaylorben/nixcord";
   };
 
   outputs =
