@@ -18,6 +18,8 @@
     ll = "eza -bhl --icons --group-directories-first"; # long list
     la = "eza -abhl --icons --group-directories-first"; # all list
     lt = "eza --tree --level=2 --icons"; # tree
+
+    nixedit = "code ~/.config/nixos/";
   };
 
   home.sessionVariables = {
@@ -28,5 +30,7 @@
     MANPAGER = "sh -c 'col -bx | bat -l man -p'";
     RUST_SRC_PATH = "${pkgs.rust.packages.stable.rustPlatform.rustLibSrc}";
     WINEPREFIX = "${config.xdg.dataHome}/wine";
+    LANG = "C.UTF-8";
+    LC_ALL = "C.UTF-8";
   };
 }

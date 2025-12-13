@@ -16,7 +16,7 @@
       scrollback_pager_history_size = 10;
       mouse_hide_wait = 3.0;
       hide_window_decorations = "yes";
-      notify_on_cmd_finish invisible = 20;
+      notify_on_cmd_finish = "invisible 20";
     };
     themeFile = "kanagawa_dragon";
   };

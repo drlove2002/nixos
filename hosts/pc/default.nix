@@ -126,6 +126,7 @@
     wget
     tree
     parted
+    glibcLocales
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
