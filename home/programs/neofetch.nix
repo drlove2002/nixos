@@ -1,24 +1,21 @@
 { ... }:
 {
-  # Install and configure fastfetch via home-manager module
   programs.fastfetch = {
     enable = true;
     settings = {
       logo = {
-        type = "none";
+        type = "builtin";
+        height = 12;
+        width = 30;
       };
       display = {
-        separator = "->   ";
+        separator = "  ";
       };
       modules = [
-        {
-          type = "title";
-          format = "{6}{7}{8}";
-        }
         "break"
         {
           type = "custom";
-          format = "┌───────────────────────────── System Information ─────────────────────────────┐";
+          format = "┌─────────────────────── System ──────────────────────┐";
         }
         "break"
         {
@@ -37,14 +34,16 @@
           type = "kernel";
         }
         {
-          key = "    󰏖 Packages     ";
-          type = "packages";
-        }
-        {
           key = "    󰅐 Uptime       ";
           keyColor = "red";
           type = "uptime";
         }
+        "break"
+        {
+          type = "custom";
+          format = "├─────────────────────── Display ─────────────────────┤";
+        }
+        "break"
         {
           key = "    󰍹 Resolution   ";
           keyColor = "yellow";
@@ -61,6 +60,17 @@
           keyColor = "green";
           type = "de";
         }
+        "break"
+        {
+          type = "custom";
+          format = "├──────────────────── Software ──────────────────────┤";
+        }
+        "break"
+        {
+          key = "    󰏖 Packages     ";
+          keyColor = "white";
+          type = "packages";
+        }
         {
           key = "     Shell        ";
           keyColor = "cyan";
@@ -71,6 +81,12 @@
           keyColor = "red";
           type = "terminal";
         }
+        "break"
+        {
+          type = "custom";
+          format = "├────────────────────── Hardware ─────────────────────┤";
+        }
+        "break"
         {
           key = "    󰻠 CPU          ";
           keyColor = "yellow";
@@ -86,24 +102,14 @@
           keyColor = "magenta";
           type = "memory";
         }
-        {
-          key = "    󰩟 Local IP     ";
-          keyColor = "red";
-          type = "localip";
-        }
-        {
-          key = "    󰩠 Public IP    ";
-          keyColor = "cyan";
-          type = "publicip";
-        }
         "break"
         {
           type = "custom";
-          format = "└──────────────────────────────────────────────────────────────────────────────┘";
+          format = "└──────────────────────────────────────────────────────┘";
         }
         "break"
         {
-          paddingLeft = 34;
+          paddingLeft = 18;
           symbol = "circle";
           type = "colors";
         }

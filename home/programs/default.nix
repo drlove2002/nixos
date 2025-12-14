@@ -7,7 +7,7 @@
     ./discord
     ./neofetch.nix
     ./atuin.nix
-    ./vscode.nix
+    ./vscode
     ./nvim.nix
   ];
 }
