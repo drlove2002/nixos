@@ -17,7 +17,7 @@
   };
 
   services.redis = {
-    enable = true;
+    servers."".enable = true;
     package = pkgs.unstable.redis;
   };
 }
