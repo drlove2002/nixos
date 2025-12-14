@@ -8,7 +8,7 @@
       final: prev:
       let
         unstable-pkgs = import inputs.nixpkgs-unstable {
-          system = prev.system;
+          system = prev.pkgs.stdenv.hostPlatform.system;
           config = {
             allowUnfree = true;
           };

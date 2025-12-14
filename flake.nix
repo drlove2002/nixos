@@ -34,7 +34,6 @@
             home-manager.backupFileExtension = "hmbackup";
             home-manager.extraSpecialArgs = {
               inherit inputs;
-              system = "x86_64-linux";
             };
             home-manager.users.love = import ./home;
           }

@@ -1,7 +1,6 @@
 {
   pkgs,
   inputs,
-  system,
   ...
 }:
 {
@@ -12,7 +11,7 @@
     ripgrep
     nixfmt-rfc-style
     obsidian
-    inputs.zen-browser.packages."${system}".default
+    inputs.zen-browser.packages."${stdenv.hostPlatform.system}".default
     dbeaver-bin
     gitkraken
     spotify
