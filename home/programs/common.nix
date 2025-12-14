@@ -16,6 +16,7 @@
     gitkraken
     spotify
     vlc
+    qbittorrent-enhanced
 
     # Programming languages and tools
     nodePackages.npm
