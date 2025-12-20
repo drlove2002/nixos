@@ -9,6 +9,7 @@ in
     ./starship.nix
     ./terminal.nix
     ./btop.nix
+    ./scripts
   ];
 
 }

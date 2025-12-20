@@ -4,9 +4,8 @@
     ff = "fastfetch";
     copy = "xclip -selection clipboard";
     paste = "xclip -selection clipboard -o";
-    nixbuild = "sudo nixos-rebuild switch --upgrade";
-    nixgc = "sudo nix-collect-garbage";
-    nixrmold = "sudo nix-env --delete-generations old";
+    nb = "sudo nixos-rebuild switch --upgrade";
+    ngc = "sudo nix-collect-garbage";
     htop = "btop";
     code = "codium";
     cd = "z";
