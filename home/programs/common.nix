@@ -16,14 +16,13 @@
     gitkraken
     spotify
     vlc
-    qbittorrent-enhanced
+    qbittorrent-enhanced # bittorrent
+    libreoffice-qt-fresh # Ms-Word
 
     # Programming languages and tools
     nodePackages.npm
     nodePackages.pnpm
     python312
-    python312Packages.pip
-    python312Packages.virtualenv
     uv
   ];
 
