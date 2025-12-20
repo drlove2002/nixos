@@ -2,8 +2,14 @@
 
 {
   fonts.packages = with pkgs; [
+    papirus-icon-theme
+    twitter-color-emoji
+    material-symbols
     nerd-fonts.iosevka
-    nerd-fonts.jetbrains-mono
-    nerd-fonts.fira-code
   ];
+  fonts.fontconfig = {
+    defaultFonts = {
+      emoji = [ "Twitter Color Emoji" ];
+    };
+  };
 }
