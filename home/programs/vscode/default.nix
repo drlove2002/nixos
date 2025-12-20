@@ -33,14 +33,12 @@
           metaphore.kanagawa-vscode-color-theme
         ]
         ++ (with pkgs.vscode-marketplace; [
-          github.vscode-github-actions
-          github.copilot-chat
           ms-vscode.hexeditor
           ms-pyright.pyright
           ms-python.python
+          ms-toolsai.jupyter
           brettm12345.nixfmt-vscode
           ryu1kn.partial-diff
-          # vadimcn.vscode-lldb
         ]);
 
       keybindings = import ./keybindings.nix;

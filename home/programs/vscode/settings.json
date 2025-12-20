@@ -33,7 +33,6 @@
     "editor.mouseWheelZoom": true,
     "explorer.confirmDragAndDrop": false,
     "[dart]": {
-        "editor.formatOnSave": true,
         "editor.formatOnType": true,
         "editor.rulers": [
             120
@@ -91,5 +90,6 @@
     "window.menuStyle": "custom",
     "window.menuBarVisibility": "compact",
     "window.titleBarStyle": "native",
-    "window.customTitleBarVisibility": "never"
+    "window.customTitleBarVisibility": "never",
+    "window.restoreFullscreen": true
 }
