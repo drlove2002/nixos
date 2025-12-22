@@ -10,6 +10,7 @@ in
     ./terminal.nix
     ./btop.nix
     ./scripts
+    ./bat.nix
   ];
 
 }

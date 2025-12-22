@@ -1,6 +1,7 @@
 {
   pkgs,
   inputs,
+  kanagawa,
   ...
 }:
 {
@@ -10,7 +11,7 @@
   programs.nixcord = {
     enable = true; # Enable Nixcord (It also installs Discord)
     vesktop.enable = true; # Vesktop
-    quickCss = builtins.readFile ./kanagawa.theme.css;
+    quickCss = kanagawa.discordCss;
     config = {
       useQuickCss = true;
       frameless = true; # Set some Vencord/Equicord options

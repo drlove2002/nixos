@@ -200,7 +200,23 @@
         "nixcord": "nixcord",
         "nixpkgs": "nixpkgs_2",
         "nixpkgs-unstable": "nixpkgs-unstable",
+        "themes": "themes",
         "zen-browser": "zen-browser"
+      }
+    },
+    "themes": {
+      "locked": {
+        "lastModified": 1751294078,
+        "narHash": "sha256-nhjEKaILnVdQwUUYOmdIYuOWjQczi25nPpd7PaQewmE=",
+        "owner": "RGBCube",
+        "repo": "ThemeNix",
+        "rev": "27db9067eff05b1606c1e1baf515414364a538b8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "RGBCube",
+        "repo": "ThemeNix",
+        "type": "github"
       }
     },
     "zen-browser": {

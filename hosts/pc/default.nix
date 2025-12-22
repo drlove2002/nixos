@@ -17,7 +17,7 @@
     ./db.nix
     ./warp.nix
     ./font.nix
-    ./overlay.nix
+    ./overlay
   ];
 
   # Bootloader.

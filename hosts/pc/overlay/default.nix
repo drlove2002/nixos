@@ -29,6 +29,7 @@
           };
         });
 
+        maple-mono-custom = final.callPackage ./maple-mono.nix { };
       }
     )
   ];
