@@ -1,4 +1,7 @@
-{ config, pkgs, ... }:
+{
+  user,
+  ...
+}:
 {
 
   imports = [
@@ -9,7 +12,7 @@
 
   # Home Manager
   home = {
-    username = "love";
+    username = user;
     homeDirectory = "/home/love";
 
     stateVersion = "25.05"; # DO NOT CHANGE

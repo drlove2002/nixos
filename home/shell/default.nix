@@ -1,13 +1,12 @@
-let
-  _ = builtins.trace "Loading Shell" null;
-in
 {
   imports = [
     ./zsh.nix
     ./aliases.nix
+    ./envvar.nix
+    ./kitty.nix
+    ./ssh.nix
     ./common.nix
     ./starship.nix
-    ./terminal.nix
     ./btop.nix
     ./scripts
     ./bat.nix

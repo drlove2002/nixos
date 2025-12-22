@@ -2,6 +2,12 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nur.url = "github:nix-community/NUR";
+
+    nix-index-database = {
+      url = "github:nix-community/nix-index-database";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     home-manager = {
       url = "github:nix-community/home-manager/release-25.11";
@@ -17,9 +23,8 @@
 
     nixcord.url = "github:kaylorben/nixcord";
 
-    themes = {
-      url = "github:RGBCube/ThemeNix";
-    };
+    themes.url = "github:RGBCube/ThemeNix";
+
   };
 
   outputs =
@@ -32,10 +37,11 @@
     }:
     let
       kanagawa = themes.kanagawa;
+      user = "love";
     in
     {
       nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
-        specialArgs = { inherit inputs kanagawa; };
+        specialArgs = { inherit inputs kanagawa user; };
         modules = [
           ./hosts/pc
           home-manager.nixosModules.home-manager
@@ -44,7 +50,7 @@
             home-manager.useUserPackages = true;
             home-manager.backupFileExtension = "hmbackup";
             home-manager.extraSpecialArgs = {
-              inherit inputs kanagawa;
+              inherit inputs kanagawa user;
             };
             home-manager.users.love = import ./home;
           }
@@ -52,5 +58,4 @@
       };
 
     };
-
 }

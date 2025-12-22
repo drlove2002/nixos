@@ -13,6 +13,10 @@
     bat
     eza
     fd
+    perf
+    zip
+    unzip
+    ripgrep
   ];
 
   programs = {

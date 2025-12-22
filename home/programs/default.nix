@@ -1,6 +1,8 @@
 {
   imports = [
-    ./common.nix
+    ./gui.nix
+    ./dev.nix
+    ./nix.nix
     ./rust.nix
     ./git
     ./discord
