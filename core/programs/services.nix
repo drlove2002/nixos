@@ -19,7 +19,9 @@
     ];
 
     logind.settings.Login = {
-      HandlePowerKey = "hibernate";
+      HandleLidSwitch = "suspend-then-hibernate";
+      HandlePowerKey = "suspend-then-hibernate";
+      KillUserProcesses = false;
     };
 
     udisks2.enable = true;
