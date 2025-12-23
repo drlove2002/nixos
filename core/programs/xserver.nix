@@ -6,10 +6,6 @@
       xkb.layout = "us";
     };
 
-    displayManager.autoLogin = {
-      enable = true;
-      user = user;
-    };
     libinput = {
       enable = true;
     };
