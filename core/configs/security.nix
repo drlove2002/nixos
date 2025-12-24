@@ -9,6 +9,7 @@
     };
 
     pam.services = {
+      login.enableGnomeKeyring = true;
       swaylock = { }; # TODO: Need to use any of these pam
       hyprlock = { };
     };

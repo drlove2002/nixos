@@ -3,7 +3,6 @@
   imports = [
     ./db.nix
     ./warp.nix
-    ./nh.nix
     ./wayland.nix
     ./xserver.nix
     ./services.nix

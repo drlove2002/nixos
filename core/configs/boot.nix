@@ -6,8 +6,7 @@
       efi.canTouchEfiVariables = true;
       systemd-boot.configurationLimit = 10;
     };
-
-    kernelParams = [ "resume=/swapfile" ];
+    initrd.systemd.enable = true;
     kernelPackages = pkgs.linuxPackages_latest;
     supportedFilesystems = [ "ntfs" ];
   };

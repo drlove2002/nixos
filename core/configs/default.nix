@@ -8,6 +8,7 @@
     ./security.nix
     ./system.nix
     ./network.nix
+    ./disks.nix
   ];
 
 }

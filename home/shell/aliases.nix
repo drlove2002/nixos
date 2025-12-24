@@ -5,8 +5,10 @@
     c = "clear";
     copy = "xclip -selection clipboard";
     paste = "xclip -selection clipboard -o";
-    nb = "nix flake update && nh os switch";
-    ngc = "nh clean all && sudo nix-env --delete-generations old";
+    nb = "sudo nixos-rebuild switch --upgrade";
+    nbu = "nix flake update && nb";
+    ngc = "sudo nix-collect-garbage -d";
+    ne = "code ~/.config/nixos/";
     htop = "btop";
     code = "codium";
     cd = "z";
@@ -19,6 +21,5 @@
     la = "eza -abhl --icons --group-directories-first"; # all list
     lt = "eza --tree --level=2 --icons"; # tree
 
-    nixedit = "code ~/.config/nixos/";
   };
 }

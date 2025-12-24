@@ -40,24 +40,6 @@
     ];
   };
 
-  fileSystems."/run/media/love/SHARED" = {
-    device = "/dev/disk/by-uuid/1039142B1039142B";
-    fsType = "ntfs3"; # Modern NTFS driver (or "ntfs-3g" for older systems)
-    options = [
-      "rw"
-      "user"
-      "noauto"
-      "x-systemd.automount"
-    ];
-  };
-
-  swapDevices = [
-    {
-      device = "/swapfile";
-      size = 8192; # Size in MB (8192 MB = 8 GB)
-    }
-  ];
-
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
   # (the default) this is the recommended approach. When using systemd-networkd it's
   # still possible to use this option, but it's recommended to use it in conjunction
