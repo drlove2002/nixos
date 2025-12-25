@@ -1,32 +1,25 @@
 # VS Code Keybindings - Vim-style Navigation in File Explorer
 # Organized into functional groups
-
 let
   # Helper function to create a keybinding
-  binding =
-    {
-      key,
-      command,
-      when ? "filesExplorerFocus && !inputFocus",
-    }:
-    {
-      inherit key command when;
-    };
+  binding = {
+    key,
+    command,
+    when ? "filesExplorerFocus && !inputFocus",
+  }: {
+    inherit key command when;
+  };
 
   # Helper for disabling default bindings (command starts with -)
-  unbind =
-    {
-      key,
-      command,
-      when ? "filesExplorerFocus && !inputFocus",
-    }:
-    {
-      inherit key when;
-      command = "-${command}";
-    };
-
-in
-[
+  unbind = {
+    key,
+    command,
+    when ? "filesExplorerFocus && !inputFocus",
+  }: {
+    inherit key when;
+    command = "-${command}";
+  };
+in [
   # ============================================================================
   # NAVIGATION (hjkl movement)
   # ============================================================================

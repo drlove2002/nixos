@@ -1,6 +1,9 @@
-{ pkgs, ... }:
-
 {
+  pkgs,
+  config,
+  lib,
+  ...
+}: {
   programs.vscode = {
     enable = true;
     package = pkgs.unstable.vscodium;
@@ -9,8 +12,7 @@
     profiles.default = {
       enableUpdateCheck = false;
       enableExtensionUpdateCheck = false;
-      extensions =
-        with pkgs.open-vsx;
+      extensions = with pkgs.open-vsx;
         [
           vscodevim.vim
           cweijan.dbclient-jdbc
@@ -37,13 +39,17 @@
           ms-pyright.pyright
           ms-python.python
           ms-toolsai.jupyter
-          brettm12345.nixfmt-vscode
           ryu1kn.partial-diff
         ]);
 
       keybindings = import ./keybindings.nix;
-      userSettings = builtins.fromJSON (builtins.readFile ./settings.json);
+      # userSettings = builtins.fromJSON (builtins.readFile ./settings.json);
     };
-
   };
+
+  home.file."${config.xdg.configHome}/VSCodium/User/settings.json".source = lib.mkForce (
+    config.lib.file.mkOutOfStoreSymlink (
+      builtins.toString "${config.xdg.configHome}/nixos/home/programs/vscode/settings.json"
+    )
+  );
 }

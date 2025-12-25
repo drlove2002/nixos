@@ -1,5 +1,4 @@
-{ pkgs, ... }:
-{
+{pkgs, ...}: {
   networking = {
     hostName = "nixos";
     networkmanager.enable = true;
@@ -19,5 +18,4 @@
     # };
   };
   systemd.services.network-setup.enable = false;
-
 }

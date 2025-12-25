@@ -1,5 +1,4 @@
-{ pkgs, ... }:
-{
+{pkgs, ...}: {
   services = {
     gvfs.enable = true;
 
@@ -44,5 +43,4 @@
     HibernateMode=shutdown
   '';
   powerManagement.enable = true;
-
 }

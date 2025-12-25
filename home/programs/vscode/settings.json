@@ -27,7 +27,6 @@
         ]
     },
     "editor.wordWrap": "on",
-    "editor.cursorBlinking": "smooth",
     "workbench.reduceMotion": "on",
     "terminal.integrated.smoothScrolling": true,
     "editor.mouseWheelZoom": true,
@@ -76,8 +75,27 @@
     "postman.mcp.notifications.postmanMCP": false,
     "terminal.external.linuxExec": "kitty",
     "terminal.integrated.defaultProfile.linux": "zsh",
-    "[nix]": {
-        "editor.defaultFormatter": "brettm12345.nixfmt-vscode"
+    "nix.enableLanguageServer": true,
+    "nix.serverPath": "nixd",
+    "nix.serverSettings": {
+        "nixd": {
+            "nixpkgs": {
+                "expr": "import <nixpkgs> { }"
+            },
+            "formatting": {
+                "command": [
+                    "alejandra"
+                ]
+            },
+            "options": {
+                "nixos": {
+                    "expr": "(builtins.getFlake (builtins.toString ./.)).nixosConfigurations.nixos.options"
+                },
+                "home-manager": {
+                    "expr": "(builtins.getFlake (builtins.toString ./.)).nixosConfigurations.nixos.options.home-manager.users.type.getSubOptions []"
+                }
+            }
+        }
     },
     "git.autofetch": true,
     "workbench.colorTheme": "Kanagawa Dragon",
@@ -91,5 +109,8 @@
     "window.menuBarVisibility": "compact",
     "window.titleBarStyle": "native",
     "window.customTitleBarVisibility": "never",
-    "window.restoreFullscreen": true
+    "window.restoreFullscreen": true,
+    "editor.cursorSurroundingLines": 15,
+    "editor.cursorSmoothCaretAnimation": "on",
+    "editor.cursorBlinking": "phase"
 }

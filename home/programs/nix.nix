@@ -1,13 +1,16 @@
-{ inputs, pkgs, ... }:
 {
+  inputs,
+  pkgs,
+  ...
+}: {
   programs = {
     nix-index = {
       enable = true;
       enableZshIntegration = false;
     };
-
   };
 
+  nix.nixPath = ["nixpkgs=${inputs.nixpkgs}"];
   home.packages = with pkgs; [
     nvd # Nix/NixOS package version diff tool
     nix-du # Tool to determine which gc-roots take space in your nix store

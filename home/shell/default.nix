@@ -11,5 +11,4 @@
     ./scripts
     ./bat.nix
   ];
-
 }

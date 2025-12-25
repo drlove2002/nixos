@@ -1,9 +1,4 @@
-{
-  user,
-  ...
-}:
-{
-
+{user, ...}: {
   imports = [
     ./programs
     ./shell

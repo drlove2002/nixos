@@ -1,5 +1,8 @@
-{ pkgs, config, ... }:
 {
+  pkgs,
+  config,
+  ...
+}: {
   home.shellAliases = {
     ff = "fastfetch";
     c = "clear";
@@ -20,6 +23,5 @@
     ll = "eza -bhl --icons --group-directories-first"; # long list
     la = "eza -abhl --icons --group-directories-first"; # all list
     lt = "eza --tree --level=2 --icons"; # tree
-
   };
 }

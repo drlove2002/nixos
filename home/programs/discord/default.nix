@@ -3,8 +3,7 @@
   inputs,
   kanagawa,
   ...
-}:
-{
+}: {
   imports = [
     inputs.nixcord.homeModules.nixcord
   ];

@@ -1,5 +1,4 @@
-{ ... }:
-{
+{...}: {
   # Install atuin via home-manager module
   programs.atuin = {
     enable = true;
@@ -15,6 +14,6 @@
       secrets_filter = true;
       style = "compact";
     };
-    flags = [ "--disable-up-arrow" ];
+    flags = ["--disable-up-arrow"];
   };
 }

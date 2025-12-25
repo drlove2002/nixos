@@ -1,5 +1,4 @@
-{ pkgs, ... }:
-{
+{pkgs, ...}: {
   boot = {
     loader = {
       systemd-boot.enable = true;
@@ -8,6 +7,6 @@
     };
     initrd.systemd.enable = true;
     kernelPackages = pkgs.linuxPackages_latest;
-    supportedFilesystems = [ "ntfs" ];
+    supportedFilesystems = ["ntfs"];
   };
 }

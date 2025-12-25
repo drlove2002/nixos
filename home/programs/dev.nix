@@ -1,8 +1,7 @@
-{ pkgs, ... }:
-{
+{pkgs, ...}: {
   home.packages = with pkgs; [
     nixd
-    nixfmt-rfc-style
+    alejandra
     nodePackages.npm
     nodePackages.pnpm
     python312

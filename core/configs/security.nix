@@ -1,5 +1,4 @@
-{ ... }:
-{
+{...}: {
   security = {
     rtkit.enable = true;
 
@@ -10,8 +9,8 @@
 
     pam.services = {
       login.enableGnomeKeyring = true;
-      swaylock = { }; # TODO: Need to use any of these pam
-      hyprlock = { };
+      swaylock = {}; # TODO: Need to use any of these pam
+      hyprlock = {};
     };
   };
 }

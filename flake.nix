@@ -24,38 +24,33 @@
     nixcord.url = "github:kaylorben/nixcord";
 
     themes.url = "github:RGBCube/ThemeNix";
-
   };
 
-  outputs =
-    inputs@{
-      self,
-      nixpkgs,
-      home-manager,
-      themes,
-      ...
-    }:
-    let
-      kanagawa = themes.kanagawa;
-      user = "love";
-    in
-    {
-      nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
-        specialArgs = { inherit inputs kanagawa user; };
-        modules = [
-          ./hosts/pc
-          home-manager.nixosModules.home-manager
-          {
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-            home-manager.backupFileExtension = "hmbackup";
-            home-manager.extraSpecialArgs = {
-              inherit inputs kanagawa user;
-            };
-            home-manager.users.love = import ./home;
-          }
-        ];
-      };
-
+  outputs = inputs @ {
+    self,
+    nixpkgs,
+    home-manager,
+    themes,
+    ...
+  }: let
+    kanagawa = themes.kanagawa;
+    user = "love";
+  in {
+    nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
+      specialArgs = {inherit inputs kanagawa user;};
+      modules = [
+        ./hosts/pc
+        home-manager.nixosModules.home-manager
+        {
+          home-manager.useGlobalPkgs = true;
+          home-manager.useUserPackages = true;
+          home-manager.backupFileExtension = "hmbackup";
+          home-manager.extraSpecialArgs = {
+            inherit inputs kanagawa user;
+          };
+          home-manager.users.love = import ./home;
+        }
+      ];
     };
+  };
 }

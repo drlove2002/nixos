@@ -1,13 +1,10 @@
 # This module defines an overlay to add packages from nixpkgs-unstable.
-{ inputs, ... }:
-
-{
+{inputs, ...}: {
   nixpkgs.overlays = [
     inputs.nix-vscode-extensions.overlays.default
     inputs.nur.overlays.default
     (
-      final: prev:
-      let
+      final: prev: let
         unstable-pkgs = import inputs.nixpkgs-unstable {
           system = prev.pkgs.stdenv.hostPlatform.system;
           config = {
@@ -15,8 +12,7 @@
           };
           # Config is inherited from the top-level nixpkgs configuration
         };
-      in
-      {
+      in {
         unstable = unstable-pkgs; # Provides pkgs.unstable for convenience
 
         material-symbols = prev.material-symbols.overrideAttrs (oldAttrs: {
@@ -26,11 +22,11 @@
             repo = "material-design-icons";
             rev = "941fa95d7f6084a599a54ca71bc565f48e7c6d9e";
             hash = "sha256-5bcEh7Oetd2JmFEPCcoweDrLGQTpcuaCU8hCjz8ls3M=";
-            sparseCheckout = [ "variablefont" ];
+            sparseCheckout = ["variablefont"];
           };
         });
 
-        maple-mono-custom = final.callPackage ./maple-mono.nix { };
+        maple-mono-custom = final.callPackage ./maple-mono.nix {};
       }
     )
   ];

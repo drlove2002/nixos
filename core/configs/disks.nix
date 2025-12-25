@@ -1,6 +1,4 @@
-{ ... }:
-{
-
+{...}: {
   fileSystems."/run/media/love/SHARED" = {
     device = "/dev/disk/by-uuid/1039142B1039142B";
     fsType = "ntfs3"; # Modern NTFS driver (or "ntfs-3g" for older systems)

@@ -1,5 +1,8 @@
-{ pkgs, kanagawa, ... }:
 {
+  pkgs,
+  kanagawa,
+  ...
+}: {
   programs.bat = {
     enable = true;
     config = {

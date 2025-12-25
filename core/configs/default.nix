@@ -1,5 +1,4 @@
-{ ... }:
-{
+{...}: {
   imports = [
     ./font.nix
     ./audio.nix
@@ -10,5 +9,4 @@
     ./network.nix
     ./disks.nix
   ];
-
 }

@@ -1,5 +1,8 @@
-{ pkgs, config, ... }:
 {
+  pkgs,
+  config,
+  ...
+}: {
   home.sessionVariables = {
     EDITOR = "nvim";
     BROWSER = "zen-browser";

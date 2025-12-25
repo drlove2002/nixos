@@ -1,5 +1,4 @@
-{ pkgs, ... }:
-{
+{pkgs, ...}: {
   imports = [
     ./db.nix
     ./warp.nix
@@ -25,6 +24,6 @@
     };
 
     nix-ld.enable = true;
-    nix-ld.libraries = with pkgs; [ ];
+    nix-ld.libraries = with pkgs; [];
   };
 }

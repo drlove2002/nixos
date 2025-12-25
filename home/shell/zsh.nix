@@ -1,13 +1,7 @@
-{
-  pkgs,
-  config,
-  ...
-}:
-let
+{config, ...}: let
   c = config.xdg.configHome;
   cache = config.xdg.cacheHome;
-in
-{
+in {
   programs.zsh = {
     enable = true;
     enableCompletion = true;
