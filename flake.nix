@@ -9,10 +9,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    home-manager = {
-      url = "github:nix-community/home-manager/release-25.11";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    home-manager.url = "github:nix-community/home-manager/release-25.11";
 
     zen-browser.url = "github:0xc000022070/zen-browser-flake";
 
@@ -23,30 +20,32 @@
 
     nixcord.url = "github:kaylorben/nixcord";
 
-    themes.url = "github:RGBCube/ThemeNix";
+    stylix = {
+      url = "github:nix-community/stylix";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
   };
 
   outputs = inputs @ {
-    self,
     nixpkgs,
     home-manager,
-    themes,
+    stylix,
     ...
   }: let
-    kanagawa = themes.kanagawa;
     user = "love";
   in {
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
-      specialArgs = {inherit inputs kanagawa user;};
+      specialArgs = {inherit inputs user;};
       modules = [
         ./hosts/pc
+        stylix.nixosModules.stylix
         home-manager.nixosModules.home-manager
         {
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
           home-manager.backupFileExtension = "hmbackup";
           home-manager.extraSpecialArgs = {
-            inherit inputs kanagawa user;
+            inherit inputs user;
           };
           home-manager.users.love = import ./home;
         }

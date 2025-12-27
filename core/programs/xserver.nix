@@ -1,4 +1,4 @@
-{user, ...}: {
+{...}: {
   services = {
     xserver = {
       enable = true;

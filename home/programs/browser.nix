@@ -1,15 +1,13 @@
 {
   inputs,
   pkgs,
-  kanagawa,
   ...
 }: {
   imports = [inputs.zen-browser.homeModules.beta];
 
   programs.zen-browser.enable = true;
 
-  xdg.configFile."zen-browser/chrome/userChrome.css".text = kanagawa.firefoxTheme;
-
+  stylix.targets.zen-browser.profileNames = ["love"];
   xdg.mimeApps = let
     value = let
       system = pkgs.stdenv.hostPlatform.system;

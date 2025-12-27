@@ -8,6 +8,6 @@
     ./audio.nix
     ./security.nix
     ./user.nix
-    ./font.nix
+    ./style.nix
   ];
 }

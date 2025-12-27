@@ -4,7 +4,6 @@
   python3Packages,
   fetchPypi,
   fetchFromGitHub,
-  lib,
 }: let
   ufo-extractor = python3Packages.buildPythonPackage rec {
     pname = "ufo_extractor";
