@@ -1,12 +1,13 @@
 {...}: {
   imports = [
-    ./font.nix
-    ./audio.nix
+    ./disks.nix
     ./boot.nix
-    ./user.nix
-    ./security.nix
     ./system.nix
     ./network.nix
-    ./disks.nix
+    ./gpu.nix
+    ./audio.nix
+    ./security.nix
+    ./user.nix
+    ./font.nix
   ];
 }

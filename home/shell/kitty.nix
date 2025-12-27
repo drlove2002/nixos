@@ -11,6 +11,7 @@
       cursor_trail = 3;
       cursor_trail_decay = "0.1 0.4";
       background_opacity = 0.5;
+      background_blur = 5;
       scrollback_lines = 10000;
       scrollback_pager_history_size = 10;
       mouse_hide_wait = 3.0;

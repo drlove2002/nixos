@@ -11,5 +11,6 @@
     ./vscode
     ./nvim.nix
     ./browser.nix
+    ./gaming.nix
   ];
 }
