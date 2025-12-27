@@ -1,14 +1,10 @@
-{
-  pkgs,
-  config,
-  ...
-}: {
+{...}: {
   home.shellAliases = {
     ff = "fastfetch";
     c = "clear";
     copy = "xclip -selection clipboard";
     paste = "xclip -selection clipboard -o";
-    nb = "sudo nixos-rebuild switch --upgrade";
+    nb = "git add . && sudo nixos-rebuild switch --upgrade";
     nbu = "nix flake update && nb";
     ngc = "sudo nix-collect-garbage -d";
     ne = "code ~/.config/nixos/";
