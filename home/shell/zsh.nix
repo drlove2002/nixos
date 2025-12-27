@@ -20,7 +20,6 @@ in {
         "git"
         "sudo"
       ];
-      theme = "robbyrussell"; # Starship will override this anyway
     };
 
     initContent = ''
@@ -34,6 +33,14 @@ in {
       # Custom Environment Variables (Zsh specific or if not in common)
       export LESSHISTFILE="${cache}/less/history"
       export LESSKEY="${c}/less/lesskey"
+
+      function y() {
+      	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+      	yazi "$@" --cwd-file="$tmp"
+      	IFS= read -r -d \'\' cwd < "$tmp"
+      	[ -n "$cwd" ] && [ "$cwd" != "$PWD" ] && builtin cd -- "$cwd"
+      	rm -f -- "$tmp"
+      }
     '';
   };
 }
