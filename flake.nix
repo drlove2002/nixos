@@ -24,6 +24,10 @@
       url = "github:nix-community/stylix";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
+    firefox-addons = {
+      url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs @ {
@@ -32,10 +36,10 @@
     stylix,
     ...
   }: let
-    user = "love";
+    username = "love";
   in {
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
-      specialArgs = {inherit inputs user;};
+      specialArgs = {inherit inputs username;};
       modules = [
         ./hosts/pc
         stylix.nixosModules.stylix
@@ -45,7 +49,7 @@
           home-manager.useUserPackages = true;
           home-manager.backupFileExtension = "hmbackup";
           home-manager.extraSpecialArgs = {
-            inherit inputs user;
+            inherit inputs username;
           };
           home-manager.users.love = import ./home;
         }

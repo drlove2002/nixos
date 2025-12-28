@@ -10,7 +10,7 @@
     ./atuin.nix
     ./vscode
     ./nvim.nix
-    ./browser.nix
+    ./browser
     ./gaming.nix
   ];
 }

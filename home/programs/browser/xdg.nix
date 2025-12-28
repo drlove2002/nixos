@@ -3,18 +3,9 @@
   pkgs,
   ...
 }: {
-  imports = [inputs.zen-browser.homeModules.beta];
-
-  programs.zen-browser.enable = true;
-
   stylix.targets.zen-browser.profileNames = ["love"];
   xdg.mimeApps = let
-    value = let
-      system = pkgs.stdenv.hostPlatform.system;
-      zen-browser = inputs.zen-browser.packages."${system}".default;
-    in
-      zen-browser.meta.desktopFileName;
-
+    value = inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.beta.meta.desktopFileName;
     associations = builtins.listToAttrs (
       map (name: {inherit name value;}) [
         "application/x-extension-shtml"

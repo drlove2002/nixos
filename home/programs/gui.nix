@@ -1,5 +1,6 @@
 {pkgs, ...}: {
   home.packages = with pkgs; [
+    freetube
     gimp
     obsidian
     dbeaver-bin
