@@ -12,5 +12,6 @@
     ./nvim.nix
     ./browser
     ./gaming.nix
+    ./obs.nix
   ];
 }

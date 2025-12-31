@@ -13,6 +13,8 @@
     wget
     git
     glibcLocales
+    killall
+    ((ffmpeg-full.override {withUnfree = true;}).overrideAttrs (_: {doCheck = false;}))
   ];
 
   programs = {
