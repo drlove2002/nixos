@@ -6,7 +6,6 @@
 }: {
   imports = [
     inputs.zen-browser.homeModules.beta
-    ./hm.nix
     ./xdg.nix
     ./policies.nix
     ./settings.nix

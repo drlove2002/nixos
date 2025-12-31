@@ -5,6 +5,7 @@
     ./wayland.nix
     ./xserver.nix
     ./services.nix
+    ./backup.nix
     ./suwayomi.nix
   ];
 
