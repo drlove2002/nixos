@@ -20,40 +20,25 @@
 
     nixcord.url = "github:kaylorben/nixcord";
 
+    spicetify-nix.url = "github:Gerg-L/spicetify-nix";
+
     stylix = {
       url = "github:nix-community/stylix";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
+
     firefox-addons = {
       url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = inputs @ {
-    nixpkgs,
-    home-manager,
-    stylix,
-    ...
-  }: let
+  outputs = inputs @ {nixpkgs, ...}: let
     username = "love";
   in {
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
       specialArgs = {inherit inputs username;};
-      modules = [
-        ./hosts/pc
-        stylix.nixosModules.stylix
-        home-manager.nixosModules.home-manager
-        {
-          home-manager.useGlobalPkgs = true;
-          home-manager.useUserPackages = true;
-          home-manager.backupFileExtension = "hmbackup";
-          home-manager.extraSpecialArgs = {
-            inherit inputs username;
-          };
-          home-manager.users.love = import ./home;
-        }
-      ];
+      modules = [./hosts/pc];
     };
   };
 }

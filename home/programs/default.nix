@@ -12,6 +12,7 @@
     ./nvim.nix
     ./browser
     ./gaming.nix
+    ./spotify.nix
     ./obs.nix
   ];
 }

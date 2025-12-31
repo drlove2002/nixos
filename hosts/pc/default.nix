@@ -1,9 +1,20 @@
-# Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
-# and in the NixOS manual (accessible by running ‘nixos-help’).
-{...}: {
+{
+  inputs,
+  username,
+  ...
+}: {
   imports = [
+    inputs.home-manager.nixosModules.home-manager
+    inputs.stylix.nixosModules.stylix
     ./hardware-configuration.nix
     ./../../core
   ];
+
+  home-manager.useGlobalPkgs = true;
+  home-manager.useUserPackages = true;
+  home-manager.backupFileExtension = "hmbackup";
+  home-manager.extraSpecialArgs = {
+    inherit inputs username;
+  };
+  home-manager.users.love = import ./../../home;
 }
