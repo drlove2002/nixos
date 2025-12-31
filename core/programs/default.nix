@@ -5,6 +5,7 @@
     ./wayland.nix
     ./xserver.nix
     ./services.nix
+    ./suwayomi.nix
   ];
 
   environment.systemPackages = with pkgs; [
