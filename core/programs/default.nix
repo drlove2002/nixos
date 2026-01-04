@@ -5,11 +5,11 @@
     ./wayland.nix
     ./xserver.nix
     ./services.nix
-    ./backup.nix
     ./suwayomi.nix
   ];
 
   environment.systemPackages = with pkgs; [
+    qrrs
     vim
     wget
     git
