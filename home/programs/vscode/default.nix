@@ -48,8 +48,6 @@
   };
 
   home.file."${config.xdg.configHome}/VSCodium/User/settings.json".source = lib.mkForce (
-    config.lib.file.mkOutOfStoreSymlink (
-      builtins.toString "${config.xdg.configHome}/nixos/home/programs/vscode/settings.json"
-    )
+    config.lib.file.mkOutOfStoreSymlink "${config.xdg.configHome}/nixos/home/programs/vscode/settings.json"
   );
 }

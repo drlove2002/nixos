@@ -1,9 +1,10 @@
 {
   inputs,
   pkgs,
+  username,
   ...
 }: {
-  stylix.targets.zen-browser.profileNames = ["love"];
+  stylix.targets.zen-browser.profileNames = [username];
   xdg.mimeApps = let
     value = inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.beta.meta.desktopFileName;
     associations = builtins.listToAttrs (
@@ -14,6 +15,7 @@
         "application/x-extension-xht"
         "application/x-extension-htm"
         "x-scheme-handler/unknown"
+        "x-scheme-handler/ftp"
         "x-scheme-handler/mailto"
         "x-scheme-handler/chrome"
         "x-scheme-handler/about"
@@ -21,6 +23,7 @@
         "x-scheme-handler/http"
         "application/xhtml+xml"
         "application/json"
+        "application/pdf"
         "text/html"
       ]
     );

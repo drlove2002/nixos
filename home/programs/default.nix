@@ -9,7 +9,7 @@
     ./neofetch.nix
     ./atuin.nix
     ./vscode
-    ./nvim.nix
+    ./nvim
     ./browser
     ./gaming.nix
     ./spotify.nix
