@@ -6,6 +6,7 @@
     ./xserver.nix
     ./services.nix
     ./suwayomi.nix
+    ./steam.nix
   ];
 
   environment.systemPackages = with pkgs; [
