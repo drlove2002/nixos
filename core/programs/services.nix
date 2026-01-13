@@ -31,6 +31,10 @@
         KillUserProcesses = false;
         HibernateDelaySec = 3600; # 1 hour
         InhibitorsMax = 8192;
+        PowerKeyIgnoreInhibited = true;
+        SuspendKeyIgnoreInhibited = true;
+        HibernateKeyIgnoreInhibited = true;
+        LidSwitchIgnoreInhibited = true;
       };
     };
 
