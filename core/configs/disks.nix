@@ -8,8 +8,7 @@
       "force" # If dirty flag persists post-chkdsk
       "uid=1000" # Your user ID (run `id -u`)
       "gid=100" # Your GID or shared group
-      "dmask=011" # Dirs: drwxrw-rw-rw
-      "fmask=011" # Files: -rw-rw-rw-
+      "umask=0000" # Defaults
     ];
   };
   swapDevices = [

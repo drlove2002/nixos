@@ -5,6 +5,7 @@
 
     settings = {
       git = {
+        log.showWholeGraph = true;
         pager = {
           colorArg = "always";
           pager = "delta --color-only --dark --paging=never";

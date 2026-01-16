@@ -6,7 +6,19 @@
   programs.yazi = {
     enable = true;
     enableZshIntegration = true;
+    shellWrapperName = "y";
     package = pkgs.yazi.override {_7zz = pkgs._7zz-rar;};
+
+    keymap.mgr.prepend_keymap = [
+      {
+        on = "y";
+        run = [
+          "shell -- echo %s | xclip -i -selection clipboard -t text/uri-list"
+          "yank"
+        ];
+        desc = "Yank + Clipboard";
+      }
+    ];
     settings = {
       yazi = {
         ratio = [
@@ -18,7 +30,7 @@
         sort_sensitive = true;
         sort_reverse = false;
         sort_dir_first = true;
-        linemode = "none";
+        linemode = "size";
         show_hidden = true;
         show_symlink = true;
       };
