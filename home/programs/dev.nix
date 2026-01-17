@@ -6,5 +6,7 @@
     nodePackages.pnpm
     python312
     uv
+    ruff
+    protobuf
   ];
 }

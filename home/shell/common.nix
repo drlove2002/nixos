@@ -3,7 +3,7 @@
     alejandra
     deadnix
     statix
-    xclip
+    wl-clipboard
     bat
     eza
     fd

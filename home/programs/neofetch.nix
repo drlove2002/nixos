@@ -4,8 +4,6 @@
     settings = {
       logo = {
         type = "builtin";
-        height = 12;
-        width = 30;
       };
       display = {
         separator = "  ";

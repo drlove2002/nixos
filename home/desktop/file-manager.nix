@@ -13,10 +13,15 @@
       {
         on = "y";
         run = [
-          "shell -- echo %s | xclip -i -selection clipboard -t text/uri-list"
+          "shell -- for path in %s; do echo \"file://$path\"; done | wl-copy -t text/uri-list"
           "yank"
         ];
         desc = "Yank + Clipboard";
+      }
+      {
+        on = ["c" "c"];
+        run = "shell 'cat \"$@\" | wl-copy'";
+        desc = "File content -> clipboard";
       }
     ];
     settings = {

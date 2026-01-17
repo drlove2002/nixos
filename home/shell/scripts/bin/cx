@@ -65,11 +65,11 @@ for path in "${PATHS[@]}"; do
 done
 
 # Copy to clipboard or print
-if command -v xclip &> /dev/null; then
-    echo -n "$OUTPUT" | xclip -selection clipboard
+if command -v wl-copy &> /dev/null; then
+    wl-copy "$OUTPUT"
     echo "✓ Copied to clipboard"
 else
-    echo "⚠ xclip not found, printing to stdout instead"
+    echo "⚠ wl-copy not found, printing to stdout instead"
     VERBOSE=true
 fi
 

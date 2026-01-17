@@ -112,5 +112,6 @@
     "window.restoreFullscreen": true,
     "editor.cursorSurroundingLines": 15,
     "editor.cursorSmoothCaretAnimation": "on",
-    "editor.cursorBlinking": "phase"
+    "editor.cursorBlinking": "phase",
+    "basedpyright.analysis.diagnosticMode": "workspace"
 }
