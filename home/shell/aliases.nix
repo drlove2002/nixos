@@ -1,5 +1,5 @@
-{...}: {
-  home.shellAliases = {
+{...}: let
+  shellAliases = {
     ff = "fastfetch";
     c = "clear";
     nb = "git add . && sudo nixos-rebuild switch --upgrade";
@@ -12,10 +12,21 @@
     cat = "bat";
     grep = "rg";
     find = "fd";
+    fzf = "sk";
 
     ls = "eza --icons always"; # default view
     ll = "eza -bhl --icons --group-directories-first"; # long list
     la = "eza -abhl --icons --group-directories-first"; # all list
     lt = "eza --tree --level=2 --icons"; # tree
+  };
+in {
+  home = {
+    inherit shellAliases;
+  };
+  programs.zsh = {
+    inherit shellAliases;
+  };
+  programs.bash = {
+    inherit shellAliases;
   };
 }

@@ -56,6 +56,14 @@
         ];
       };
 
+      opener.play = [
+        {
+          run = "mpv --fullscreen \"$@\"";
+          orphan = true;
+          for = "unix";
+        }
+      ];
+
       tasks = {
         micro_workers = 5;
         macro_workers = 10;

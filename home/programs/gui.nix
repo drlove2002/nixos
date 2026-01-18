@@ -5,7 +5,7 @@
     obsidian
     dbeaver-bin
     gitkraken
-    vlc
+    mpv
     qbittorrent-enhanced # bittorrent
     libreoffice-qt-fresh # Ms-Word
   ];

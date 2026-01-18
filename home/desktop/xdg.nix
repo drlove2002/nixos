@@ -1,8 +1,8 @@
 {config, ...}: let
   # XDG MIME types
   associations = {
-    "audio/*" = ["vlc.desktop"];
-    "video/*" = ["vlc.desktop"];
+    "audio/*" = ["mpv.desktop"];
+    "video/*" = ["mpv.desktop"];
     "image/*" = ["gimp.desktop"];
     "x-scheme-handler/discord" = ["vesktop.desktop"];
     "x-scheme-handler/spotify" = ["spotify.desktop"];
