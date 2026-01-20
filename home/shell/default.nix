@@ -10,5 +10,6 @@
     ./btop.nix
     ./scripts
     ./bat.nix
+    ./backup.nix
   ];
 }
