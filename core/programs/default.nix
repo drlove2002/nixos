@@ -16,6 +16,10 @@
     git
     glibcLocales
     killall
+    sqlite
+    pgloader
+    gparted
+    ncdu
     ((ffmpeg-full.override {withUnfree = true;}).overrideAttrs (_: {doCheck = false;}))
   ];
 
