@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PROFILE="$HOME/.zen/love"
+MOUNT="/data"
+BACKUP="$MOUNT/backup"
+ARCHIVE="$BACKUP/zen.tar.zst"
+
+if ! findmnt --target "$MOUNT" >/dev/null 2>&1; then
+echo "Backup drive not mounted — skipping Zen backup"
+exit 0
+fi
+
+if [ ! -d "$PROFILE" ]; then
+echo "Profile folder not found: $PROFILE"
+exit 0
+fi
+
+if [ ! -d "$BACKUP" ]; then
+echo "Creating backup directory: $BACKUP"
+mkdir -p "$BACKUP"
+chown love:love "$BACKUP"
+fi
+
+# Define files as array
+files=(
+"storage"
+"places.sqlite"
+"cookies.sqlite"
+"cert9.db"
+"key4.db"
+"logins.json"
+"extension-preferences.json"
+"extensions.json"
+"extension-settings.json"
+"search.json.mozlz4"
+"sessionCheckpoints.json"
+"sessionstore.jsonlz4"
+"prefs.js"
+"storage.sqlite"
+"containers.json"
+"zen-keyboard-shortcuts.json"
+)
+
+# Filter only existing files
+existing_files=()
+for file in "${files[@]}"; do
+if [ -e "$HOME/.zen/love/$file" ]; then
+    existing_files+=("$file")
+fi
+done
+
+# Only tar existing files (no errors!)
+if [ ${#existing_files[@]} -gt 0 ]; then
+echo "Archiving ${#existing_files[@]} files…"
+tar --zstd -cf "$ARCHIVE" \
+    -C "$HOME/.zen/love" \
+    "${existing_files[@]}"
+echo "Done 🧡"
+else
+echo "No files to backup"
+fi

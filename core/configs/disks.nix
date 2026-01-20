@@ -1,16 +1,12 @@
 {...}: {
-  fileSystems."/run/media/love/SHARED" = {
-    device = "/dev/disk/by-uuid/1039142B1039142B";
-    fsType = "ntfs3"; # Modern NTFS driver (or "ntfs-3g" for older systems)
-    options = [
-      "defaults"
-      "nofail"
-      "force" # If dirty flag persists post-chkdsk
-      "uid=1000" # Your user ID (run `id -u`)
-      "gid=100" # Your GID or shared group
-      "umask=0000" # Defaults
-    ];
+  fileSystems."/data" = {
+    device = "/dev/disk/by-uuid/48616cf5-7cca-47c2-b73b-f24ff2fd42a4";
+    fsType = "ext4";
+    options = ["defaults" "nofail"];
   };
+  systemd.tmpfiles.rules = [
+    "d /data 0775 love users - -"
+  ];
   swapDevices = [
     {
       device = "/var/lib/swapfile";
