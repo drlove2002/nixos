@@ -1,0 +1,844 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "SCRIPT STARTED" >&2
+
+# ═══════════════════════════════════════════════════════════════════════════
+# nixos-sync - Maximum Extra Edition 💅✨
+# A fancy NixOS system management tool with full dashboard and progress tracking
+# ═══════════════════════════════════════════════════════════════════════════
+
+# -----------------------------------------------------------------------------
+# Configuration
+# -----------------------------------------------------------------------------
+NIXOS_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/nixos"
+CLEAN_DAYS_DEFAULT=3
+CLEAN_PATH_DEFAULT="$HOME"
+LOGDIR="${XDG_STATE_HOME:-$HOME/.local/state}/nixos-sync"
+STATEFILE="${XDG_STATE_HOME:-$HOME/.local/state}/nixos-sync/state.json"
+
+mkdir -p "$LOGDIR"
+mkdir -p "$(dirname "$STATEFILE")"
+
+# Exit codes
+EXIT_SUCCESS=0
+EXIT_CANCELLED=1
+EXIT_GIT_FAILED=2
+EXIT_FLAKE_FAILED=3
+EXIT_REBUILD_FAILED=4
+EXIT_CLEANUP_FAILED=5
+EXIT_INVALID_MODE=6
+EXIT_CONFIG_MISSING=7
+
+# -----------------------------------------------------------------------------
+# Global State
+# -----------------------------------------------------------------------------
+MODE="${1:-}"
+shift || true
+
+YES=0
+QUIET=0
+LIVE=0
+DRY=0
+NOTIFY=0
+SHOW_DIFF=0
+
+CLEAN_DAYS="$CLEAN_DAYS_DEFAULT"
+CLEAN_PATH="$CLEAN_PATH_DEFAULT"
+
+# Progress tracking
+declare -A PROGRESS_ITEMS=(
+    [flake_update]="Update flake.lock"
+    [stage_git]="Stage configuration"
+    [rebuild]="Rebuild system"
+    [user_profiles]="Clean user profiles"
+    [rust_cleanup]="Clean Rust cache"
+    [nix_gc]="Collect garbage"
+    [sync_logs]="Clean sync logs"
+)
+
+declare -A PROGRESS_STATUS=(
+    [flake_update]="pending"
+    [stage_git]="pending"
+    [rebuild]="pending"
+    [user_profiles]="pending"
+    [rust_cleanup]="pending"
+    [nix_gc]="pending"
+    [sync_logs]="pending"
+)
+
+# Metrics
+START_TIME=""
+NIX_STORE_BEFORE=""
+NIX_STORE_AFTER=""
+CARGO_HOME_BEFORE=""
+CARGO_HOME_AFTER=""
+
+# -----------------------------------------------------------------------------
+# Utility Checks
+# -----------------------------------------------------------------------------
+have_gum() { command -v gum >/dev/null 2>&1; }
+have_notify() { command -v notify-send >/dev/null 2>&1; }
+have_numfmt() { command -v numfmt >/dev/null 2>&1; }
+
+# -----------------------------------------------------------------------------
+# Cleanup Handler
+# -----------------------------------------------------------------------------
+cleanup_on_exit() {
+    local exit_code=$?
+    if [[ $exit_code -ne 0 && $exit_code -ne $EXIT_CANCELLED ]]; then
+        if have_gum; then
+            gum style --foreground 1 --bold "⚠ Interrupted or failed (exit code: $exit_code)"
+            gum style --foreground 8 "Log saved: $LOG"
+        fi
+    fi
+}
+trap cleanup_on_exit EXIT INT TERM
+
+# -----------------------------------------------------------------------------
+# Styling Functions
+# -----------------------------------------------------------------------------
+die() {
+    local msg="${1:-Something failed}"
+    local code="${2:-1}"
+    
+    if have_gum; then
+        gum style --foreground 1 --bold "✘ $msg"
+        gum style --foreground 8 "Log: $LOG"
+        gum style --foreground 8 "Tip: Check the log for detailed error output"
+    else
+        echo "✘ $msg" >&2
+        echo "Log: $LOG" >&2
+    fi
+    exit "$code"
+}
+
+ok() { 
+    if have_gum; then
+        gum style --foreground 2 --bold "✔ $1"
+    else
+        echo "✔ $1"
+    fi
+}
+
+warn() { 
+    if have_gum; then
+        gum style --foreground 3 --bold "⚠ $1"
+    else
+        echo "⚠ $1"
+    fi
+}
+
+info() { 
+    if have_gum; then
+        gum style --foreground 6 --bold "• $1"
+    else
+        echo "• $1"
+    fi
+}
+
+dim() { 
+    if have_gum; then
+        gum style --foreground 8 "$1"
+    else
+        echo "$1"
+    fi
+}
+
+success_big() { 
+    if have_gum; then
+        gum style --foreground 2 --bold --border double --padding "1 2" "$1"
+    else
+        echo "$1"
+    fi
+}
+success_big() { have_gum && gum style --foreground 2 --bold --border double --padding "1 2" "$1" || echo "$1"; }
+
+hr() {
+    if have_gum; then
+        gum style --foreground 8 "────────────────────────────────────────────────────────────"
+    else
+        echo "────────────────────────────────────────────────────────────"
+    fi
+}
+
+confirm() {
+    local msg="$1"
+    if [[ "$YES" == "1" ]]; then
+        return 0
+    fi
+    if have_gum; then
+        gum confirm "$msg"
+    else
+        read -r -p "$msg [y/N] " ans
+        [[ "${ans:-}" == "y" || "${ans:-}" == "Y" ]]
+    fi
+}
+
+# -----------------------------------------------------------------------------
+# Logging
+# -----------------------------------------------------------------------------
+ts="$(date +%Y-%m-%d_%H-%M-%S)"
+LOG="$LOGDIR/$ts.log"
+
+log_message() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >> "$LOG"
+}
+
+run_logged() {
+    local title="$1"
+    shift
+    local cmd="$*"
+    
+    log_message "START: $title"
+    log_message "COMMAND: $cmd"
+    
+    if have_gum; then
+        if gum spin --spinner dot --title "$title" -- bash -c "$cmd" >>"$LOG" 2>&1; then
+            log_message "SUCCESS: $title"
+            return 0
+        else
+            log_message "FAILED: $title"
+            return 1
+        fi
+    else
+        echo "==> $title"
+        if bash -c "$cmd" >>"$LOG" 2>&1; then
+            log_message "SUCCESS: $title"
+            return 0
+        else
+            log_message "FAILED: $title"
+            return 1
+        fi
+    fi
+}
+
+tail_log() {
+    echo
+    hr
+    if have_gum; then
+        gum style --foreground 1 --bold "Last 60 log lines:"
+    else
+        echo "Last 60 log lines:"
+    fi
+    hr
+    tail -n 60 "$LOG" || true
+    echo
+}
+
+# -----------------------------------------------------------------------------
+# CLI Parsing
+# -----------------------------------------------------------------------------
+for arg in "$@"; do
+    case "$arg" in
+        --yes|-y) YES=1 ;;
+        --quiet|-q) QUIET=1 ;;
+        --live) LIVE=1 ;;
+        --notify) NOTIFY=1 ;;
+        --show-diff) SHOW_DIFF=1 ;;
+        --days=*) CLEAN_DAYS="${arg#--days=}" ;;
+        --path=*) CLEAN_PATH="${arg#--path=}" ;;
+        *) ;;
+    esac
+done
+
+# Handle dry mode
+if [[ "$MODE" == "dry" ]]; then
+    DRY=1
+    MODE="all"
+fi
+
+# Interactive mode selection
+if [[ -z "${MODE:-}" ]]; then
+    if have_gum; then
+        MODE="$(gum choose --header "Choose nixos-sync mode" \
+            "switch" "update" "clean" "all" "dry")"
+    else
+        MODE="switch"
+    fi
+    
+    if [[ "$MODE" == "dry" ]]; then
+        DRY=1
+        MODE="all"
+    fi
+fi
+
+# -----------------------------------------------------------------------------
+# Git Helpers
+# -----------------------------------------------------------------------------
+git_branch() {
+    git -C "$NIXOS_DIR" rev-parse --abbrev-ref HEAD 2>/dev/null || echo ""
+}
+
+git_counts() {
+    local staged unstaged untracked
+    staged="$(git -C "$NIXOS_DIR" diff --cached --name-only 2>/dev/null | wc -l | tr -d ' ')"
+    unstaged="$(git -C "$NIXOS_DIR" diff --name-only 2>/dev/null | wc -l | tr -d ' ')"
+    untracked="$(git -C "$NIXOS_DIR" ls-files --others --exclude-standard 2>/dev/null | wc -l | tr -d ' ')"
+    echo "$staged $unstaged $untracked"
+}
+
+git_top_changes() {
+    (
+        cd "$NIXOS_DIR" || exit 0
+        git status --porcelain | head -n 12
+    ) 2>/dev/null || true
+}
+
+git_diff_stats() {
+    (
+        cd "$NIXOS_DIR" || exit 0
+        git diff --stat 2>/dev/null || true
+    )
+}
+
+# -----------------------------------------------------------------------------
+# Size Helpers
+# -----------------------------------------------------------------------------
+dir_size_bytes() {
+    local p="$1"
+    if [[ -d "$p" ]]; then
+        du -sb "$p" 2>/dev/null | awk '{print $1}'
+    else
+        echo "0"
+    fi
+}
+
+dir_size_human() {
+    local p="$1"
+    local bytes
+    bytes="$(dir_size_bytes "$p")"
+    
+    if have_numfmt; then
+        echo "$bytes" | numfmt --to=iec-i --suffix=B
+    else
+        local kb=$((bytes / 1024))
+        echo "${kb}K"
+    fi
+}
+
+nix_store_size() {
+    dir_size_bytes /nix/store
+}
+
+cargo_home_guess() {
+    echo "${CARGO_HOME:-$HOME/.cargo}"
+}
+
+# -----------------------------------------------------------------------------
+# Generation Info
+# -----------------------------------------------------------------------------
+current_generation() {
+    sudo nix-env --list-generations --profile /nix/var/nix/profiles/system 2>/dev/null | \
+        grep current | awk '{print $1}' || echo "unknown"
+}
+
+previous_generation() {
+    local current
+    current="$(current_generation)"
+    if [[ "$current" != "unknown" && "$current" -gt 1 ]]; then
+        echo $((current - 1))
+    else
+        echo "none"
+    fi
+}
+
+generation_date() {
+    local gen="$1"
+    sudo nix-env --list-generations --profile /nix/var/nix/profiles/system 2>/dev/null | \
+        grep "^  *$gen " | sed 's/^[^(]*(//' | sed 's/).*//' || echo "unknown"
+}
+
+# -----------------------------------------------------------------------------
+# Progress Tracking
+# -----------------------------------------------------------------------------
+PROGRESS_LINES=0  # Track how many lines to clear
+PROGRESS_SHOWING=0  # Track if progress is currently displayed
+
+update_progress() {
+    local task="$1"
+    local status="$2"  # pending, running, success, failed
+    PROGRESS_STATUS[$task]="$status"
+}
+
+clear_progress() {
+    if [[ $PROGRESS_SHOWING -eq 0 ]]; then
+        return
+    fi
+    
+    if [[ $PROGRESS_LINES -gt 0 ]]; then
+        # Move cursor up and clear lines
+        tput cuu "$PROGRESS_LINES"
+        tput ed  # Clear from cursor to end of screen
+    fi
+    PROGRESS_SHOWING=0
+}
+
+show_progress() {
+    if ! have_gum; then
+        return
+    fi
+    
+    # Clear previous progress display
+    clear_progress
+    
+    local items=""
+    local count=0
+    
+    for task in flake_update stage_git rebuild user_profiles rust_cleanup nix_gc sync_logs; do
+        local status="${PROGRESS_STATUS[$task]}"
+        local symbol
+        
+        case "$status" in
+            pending)   symbol="○" ;;
+            running)   symbol="◐" ;;
+            success)   symbol="●" ;;
+            failed)    symbol="✘" ;;
+            skipped)   symbol="─" ;;
+        esac
+        
+        # Color the symbol
+        case "$status" in
+            pending)   items+="$(gum style --foreground 240 "$symbol")" ;;
+            running)   items+="$(gum style --foreground 33 --bold "$symbol")" ;;
+            success)   items+="$(gum style --foreground 2 "$symbol")" ;;
+            failed)    items+="$(gum style --foreground 1 --bold "$symbol")" ;;
+            skipped)   items+="$(gum style --foreground 240 "$symbol")" ;;
+        esac
+        
+        # Add separator except for last item
+        (( ++count ))
+        if [[ $count -lt 7 ]]; then
+            items+=" "
+        fi
+    done
+    
+    # Print progress line
+    echo -ne "\r"
+    gum style --foreground 5 "Progress: $items"
+    echo  # Newline after progress
+    
+    # Track lines (1 for progress, 1 for newline)
+    PROGRESS_LINES=2
+    PROGRESS_SHOWING=1
+}
+
+# -----------------------------------------------------------------------------
+# Dashboard Components
+# -----------------------------------------------------------------------------
+dashboard() {
+    local b staged unstaged untracked
+    b="$(git_branch)"
+    read -r staged unstaged untracked <<<"$(git_counts 2>/dev/null || echo "0 0 0")"
+    
+    local curr_gen prev_gen gen_date
+    curr_gen="$(current_generation)"
+    prev_gen="$(previous_generation)"
+    gen_date="$(generation_date "$curr_gen")"
+    
+    # Compact info line
+    local git_status=""
+    if [[ -n "$b" ]]; then
+        if (( staged + unstaged + untracked > 0 )); then
+            git_status="$b:+$staged~$unstaged?$untracked"
+        else
+            git_status="$b:clean"
+        fi
+    else
+        git_status="no-repo"
+    fi
+    
+    local gen_display="gen:$curr_gen"
+    [[ "$prev_gen" != "none" ]] && gen_display="gen:$curr_gen←$prev_gen"
+    
+    # Build compact status line
+    local status_line="$MODE | $gen_display | git:$git_status"
+    
+    if have_gum; then
+        gum style --foreground 6 --bold "󱄅 nixos-sync"
+        gum style --foreground 8 "$status_line"
+    else
+        echo "nixos-sync"
+        echo "$status_line"
+    fi
+    
+    # Show changed files if any (compact)
+    if [[ -n "$b" ]] && (( staged + unstaged + untracked > 0 )); then
+        local preview
+        preview="$(git_top_changes)"
+        if [[ -n "$preview" ]]; then
+            echo
+            if have_gum; then
+                gum style --foreground 3 "Changes:"
+            else
+                echo "Changes:"
+            fi
+            echo "$preview" | head -n 8
+            local total=$((staged + unstaged + untracked))
+            if (( total > 8 )); then
+                dim "...and $((total - 8)) more"
+            fi
+        fi
+    fi
+}
+
+git_diff_panel() {
+    [[ "$SHOW_DIFF" != "1" ]] && return 0
+    [[ -d "$NIXOS_DIR" ]] || return 0
+    [[ -n "$(git_branch)" ]] || return 0
+    
+    local diff_stats
+    diff_stats="$(git_diff_stats)"
+    [[ -z "$diff_stats" ]] && return 0
+    
+    echo
+    if have_gum; then
+        gum style --foreground 4 "Diff:"
+    else
+        echo "Diff:"
+    fi
+    echo "$diff_stats"
+}
+
+# -----------------------------------------------------------------------------
+# Action Functions
+# -----------------------------------------------------------------------------
+require_nixos_dir() {
+    [[ -d "$NIXOS_DIR" ]] || die "Missing config dir: $NIXOS_DIR" $EXIT_CONFIG_MISSING
+}
+
+stage_git() {
+    update_progress stage_git running
+    show_progress
+    
+    if run_logged "Git add (nixos config)" "git -C \"$NIXOS_DIR\" add ."; then
+        update_progress stage_git success
+        clear_progress  # Clear before printing success message
+        ok "Staged configuration"
+        return 0
+    else
+        update_progress stage_git failed
+        clear_progress
+        return 1
+    fi
+}
+
+flake_update() {
+    update_progress flake_update running
+    show_progress
+    
+    if run_logged "nix flake update" "cd \"$NIXOS_DIR\" && nix flake update"; then
+        update_progress flake_update success
+        clear_progress
+        ok "flake.lock updated"
+        return 0
+    else
+        update_progress flake_update failed
+        clear_progress
+        return 1
+    fi
+}
+
+rebuild_switch() {
+    update_progress rebuild running
+    show_progress
+    
+    local result=0
+    
+    if [[ "$LIVE" == "1" ]]; then
+        clear_progress
+        info "Rebuilding system (live output)…"
+        if sudo nixos-rebuild switch --upgrade 2>&1 | tee -a "$LOG"; then
+            update_progress rebuild success
+            ok "System switched"
+        else
+            update_progress rebuild failed
+            result=1
+        fi
+    elif [[ "$QUIET" == "1" ]]; then
+        if run_logged "nixos-rebuild switch --upgrade (quiet)" "sudo nixos-rebuild switch --upgrade >/dev/null"; then
+            update_progress rebuild success
+            clear_progress
+            ok "System switched"
+        else
+            update_progress rebuild failed
+            clear_progress
+            result=1
+        fi
+    else
+        if run_logged "nixos-rebuild switch --upgrade" "sudo nixos-rebuild switch --upgrade"; then
+            update_progress rebuild success
+            clear_progress
+            ok "System switched"
+        else
+            update_progress rebuild failed
+            clear_progress
+            result=1
+        fi
+    fi
+    
+    return $result
+}
+
+rust_cleanup() {
+    update_progress rust_cleanup running
+    show_progress
+    
+    local cargo_home
+    cargo_home="$(cargo_home_guess)"
+    
+    CARGO_HOME_BEFORE="$(dir_size_bytes "$cargo_home")"
+    
+    if ! run_logged "cargo cache -e" "cargo cache -e 2>&1 || true"; then
+        update_progress rust_cleanup failed
+        clear_progress
+        return 1
+    fi
+    
+    if [[ "$DRY" == "1" ]]; then
+        if run_logged "cargo sweep (dry-run)" "cargo sweep -r -t \"$CLEAN_DAYS\" \"$CLEAN_PATH\" -d 2>&1 || true"; then
+            update_progress rust_cleanup success
+            clear_progress
+            ok "Cargo sweep dry-run done"
+        else
+            update_progress rust_cleanup failed
+            clear_progress
+            return 1
+        fi
+    else
+        if run_logged "cargo sweep (keep $CLEAN_DAYS days)" "cargo sweep -r -t \"$CLEAN_DAYS\" \"$CLEAN_PATH\" 2>&1 || true"; then
+            update_progress rust_cleanup success
+            clear_progress
+            ok "Cargo sweep completed"
+        else
+            update_progress rust_cleanup failed
+            clear_progress
+            return 1
+        fi
+    fi
+    
+    CARGO_HOME_AFTER="$(dir_size_bytes "$cargo_home")"
+    
+    local before_h after_h freed
+    before_h="$(echo "$CARGO_HOME_BEFORE" | numfmt --to=iec-i --suffix=B 2>/dev/null || echo "${CARGO_HOME_BEFORE}B")"
+    after_h="$(echo "$CARGO_HOME_AFTER" | numfmt --to=iec-i --suffix=B 2>/dev/null || echo "${CARGO_HOME_AFTER}B")"
+    freed=$((CARGO_HOME_BEFORE - CARGO_HOME_AFTER))
+    
+    if [[ $freed -gt 0 ]]; then
+        local freed_h
+        freed_h="$(echo "$freed" | numfmt --to=iec-i --suffix=B 2>/dev/null || echo "${freed}B")"
+        dim "Cargo: $before_h → $after_h (freed: $freed_h)"
+    else
+        dim "Cargo: $before_h (no change)"
+    fi
+    
+    return 0
+}
+
+nix_gc() {
+    update_progress nix_gc running
+    show_progress
+    
+    NIX_STORE_BEFORE="$(nix_store_size)"
+    
+    # Full garbage collection with multiple strategies
+    local gc_failed=0
+    
+    # 1. Delete old generations first
+    if ! run_logged "Delete old generations" "sudo nix-env --delete-generations old --profile /nix/var/nix/profiles/system"; then
+        warn "Failed to delete old generations"
+        gc_failed=1
+    fi
+    
+    # 2. Collect garbage
+    if ! run_logged "nix-collect-garbage -d" "sudo nix-collect-garbage -d"; then
+        warn "Failed to collect garbage"
+        gc_failed=1
+    fi
+    
+    # 3. Optimize store (deduplicate)
+    if ! run_logged "nix-store --optimize" "sudo nix-store --optimize"; then
+        warn "Failed to optimize store"
+        gc_failed=1
+    fi
+    
+    if [[ $gc_failed -eq 1 ]]; then
+        update_progress nix_gc failed
+        clear_progress
+        return 1
+    fi
+    
+    update_progress nix_gc success
+    clear_progress
+    ok "Nix garbage collected & optimized"
+    
+    NIX_STORE_AFTER="$(nix_store_size)"
+    
+    local before_h after_h freed
+    before_h="$(echo "$NIX_STORE_BEFORE" | numfmt --to=iec-i --suffix=B 2>/dev/null || echo "${NIX_STORE_BEFORE}B")"
+    after_h="$(echo "$NIX_STORE_AFTER" | numfmt --to=iec-i --suffix=B 2>/dev/null || echo "${NIX_STORE_AFTER}B")"
+    freed=$((NIX_STORE_BEFORE - NIX_STORE_AFTER))
+    
+    if [[ $freed -gt 0 ]]; then
+        local freed_h
+        freed_h="$(echo "$freed" | numfmt --to=iec-i --suffix=B 2>/dev/null || echo "${freed}B")"
+        dim "Nix store: $before_h → $after_h (freed: $freed_h)"
+    else
+        dim "Nix store: $before_h (no change)"
+    fi
+    
+    return 0
+}
+
+clean_user_profiles() {
+    update_progress user_profiles running
+    show_progress
+    
+    # Clean user's nix profile generations
+    if run_logged "Delete old user profile generations" "nix-env --delete-generations old 2>&1 || true"; then
+        dim "User profile generations cleaned"
+    fi
+    
+    # Clean any profile-specific garbage
+    if run_logged "Collect user garbage" "nix-collect-garbage 2>&1 || true"; then
+        dim "User garbage collected"
+    fi
+    
+    update_progress user_profiles success
+    clear_progress
+    ok "User profiles cleaned"
+}
+
+clean_nixos_sync_logs() {
+    update_progress sync_logs running
+    show_progress
+    
+    local keep_count=5
+    local log_count
+    log_count=$(ls -1t "$LOGDIR"/*.log 2>/dev/null | wc -l)
+    
+    if [[ $log_count -gt $keep_count ]]; then
+        ls -1t "$LOGDIR"/*.log 2>/dev/null | tail -n +$((keep_count + 1)) | xargs rm -f
+        update_progress sync_logs success
+        clear_progress
+        ok "Removed $((log_count - keep_count)) old log files"
+    else
+        update_progress sync_logs success
+        clear_progress
+        dim "Log cleanup: nothing to remove"
+    fi
+}
+
+# -----------------------------------------------------------------------------
+# Final Summary
+# -----------------------------------------------------------------------------
+show_summary() {
+    local end_time elapsed
+    end_time="$(date +%s)"
+    elapsed=$((end_time - START_TIME))
+    
+    local curr_gen
+    curr_gen="$(current_generation)"
+    
+    local total_freed=0
+    [[ -n "$NIX_STORE_BEFORE" && -n "$NIX_STORE_AFTER" ]] && \
+        total_freed=$((total_freed + NIX_STORE_BEFORE - NIX_STORE_AFTER))
+    [[ -n "$CARGO_HOME_BEFORE" && -n "$CARGO_HOME_AFTER" ]] && \
+        total_freed=$((total_freed + CARGO_HOME_BEFORE - CARGO_HOME_AFTER))
+    
+    local freed_h
+    if [[ $total_freed -gt 0 ]]; then
+        freed_h="$(echo "$total_freed" | numfmt --to=iec-i --suffix=B 2>/dev/null || echo "${total_freed}B")"
+    else
+        freed_h="0B"
+    fi
+    
+    echo
+    if have_gum; then
+        gum style --foreground 2 --bold "✔ Done • gen:$curr_gen • ${elapsed}s • freed:$freed_h"
+    else
+        ok "Done • gen:$curr_gen • ${elapsed}s • freed:$freed_h"
+    fi
+    
+    # Desktop notification
+    if [[ "$NOTIFY" == "1" ]] && have_notify; then
+        notify-send "nixos-sync" "Complete in ${elapsed}s • Freed $freed_h" -i system-software-update
+    fi
+}
+
+# -----------------------------------------------------------------------------
+# Main Execution Flow
+# -----------------------------------------------------------------------------
+START_TIME="$(date +%s)"
+log_message "=== nixos-sync started: mode=$MODE ==="
+
+# Mark tasks as skipped based on mode
+case "$MODE" in
+    switch)
+        update_progress flake_update skipped
+        update_progress user_profiles skipped
+        update_progress rust_cleanup skipped
+        update_progress nix_gc skipped
+        update_progress sync_logs skipped
+        ;;
+    update)
+        update_progress user_profiles skipped
+        update_progress rust_cleanup skipped
+        update_progress nix_gc skipped
+        update_progress sync_logs skipped
+        ;;
+    clean)
+        update_progress flake_update skipped
+        update_progress stage_git skipped
+        update_progress rebuild skipped
+        ;;
+esac
+
+# Display header and dashboard
+dashboard
+git_diff_panel
+show_progress
+
+# Execute actions based on mode
+case "$MODE" in
+    switch)
+        require_nixos_dir
+        stage_git || { tail_log; die "Git staging failed" $EXIT_GIT_FAILED; }
+        rebuild_switch || { tail_log; die "System rebuild failed" $EXIT_REBUILD_FAILED; }
+        ;;
+        
+    update)
+        require_nixos_dir
+        flake_update || { tail_log; die "Flake update failed" $EXIT_FLAKE_FAILED; }
+        stage_git || { tail_log; die "Git staging failed" $EXIT_GIT_FAILED; }
+        rebuild_switch || { tail_log; die "System rebuild failed" $EXIT_REBUILD_FAILED; }
+        ;;
+        
+    clean)
+        rust_cleanup || { tail_log; die "Rust cleanup failed" $EXIT_CLEANUP_FAILED; }
+        clean_user_profiles
+        nix_gc || { tail_log; die "Nix GC failed" $EXIT_CLEANUP_FAILED; }
+        clean_nixos_sync_logs
+        ;;
+        
+    all)
+        require_nixos_dir
+        flake_update || { tail_log; die "Flake update failed" $EXIT_FLAKE_FAILED; }
+        stage_git || { tail_log; die "Git staging failed" $EXIT_GIT_FAILED; }
+        rebuild_switch || { tail_log; die "System rebuild failed" $EXIT_REBUILD_FAILED; }
+        rust_cleanup || { tail_log; die "Rust cleanup failed" $EXIT_CLEANUP_FAILED; }
+        clean_user_profiles
+        nix_gc || { tail_log; die "Nix GC failed" $EXIT_CLEANUP_FAILED; }
+        clean_nixos_sync_logs
+        ;;
+        
+    *)
+        die "Unknown mode: $MODE" $EXIT_INVALID_MODE
+        ;;
+esac
+
+# Show final summary
+show_summary
+
+log_message "=== nixos-sync completed successfully ==="
+exit $EXIT_SUCCESS

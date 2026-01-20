@@ -7,5 +7,8 @@
     clippy
     rust-analyzer
     protobuf
+    cargo-cache
+    cargo-sweep
+    sqlx-cli
   ];
 }

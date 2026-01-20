@@ -30,3 +30,10 @@ in {
     inherit shellAliases;
   };
 }
+# nb = "nixos-sync switch";
+# nu = "nixos-sync update";
+# na = "nixos-sync all";
+# ngc = "nixos-sync clean";
+# nd = "nixos-sync dry";
+# ne = "code $XDG_CONFIG_HOME/nixos/";
+

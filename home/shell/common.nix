@@ -11,6 +11,7 @@
     zip
     unzip
     ripgrep
+    gum # For shell scripts TUI styling
   ];
 
   programs = {
