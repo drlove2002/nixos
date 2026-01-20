@@ -12,6 +12,11 @@
       # ipv6
       host  all      all     ::1/128        trust
     '';
+    initialScript = pkgs.writeText "backend-initScript" ''
+      CREATE ROLE test WITH LOGIN PASSWORD 'test' CREATEDB;
+      CREATE DATABASE testdb;
+      GRANT ALL PRIVILEGES ON DATABASE testdb TO test;
+    '';
   };
 
   services.redis = {
