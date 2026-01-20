@@ -23,6 +23,11 @@
         run = "shell 'cat \"$@\" | wl-copy'";
         desc = "File content -> clipboard";
       }
+      {
+        on = ["<C-d>"];
+        run = "shell --block 'ncdu --color dark --confirm-quit \"$PWD\"'";
+        desc = "Disk usage of selected (ncdu)";
+      }
     ];
     settings = {
       yazi = {
