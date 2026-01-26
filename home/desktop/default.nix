@@ -3,5 +3,6 @@
     ./xdg.nix
     ./file-manager.nix
     ./style.nix
+    ./hyprland
   ];
 }

@@ -1,0 +1,57 @@
+/* Kanagawa Wlogout */
+
+* {
+  background-image: none;
+  box-shadow: none;
+}
+
+window {
+  background-color: rgba(31, 31, 40, 0.72); /* #1f1f28 */
+}
+
+button {
+  margin: 14px;
+  padding: 16px;
+
+  border-radius: 10px;
+  border: 2px solid #54546d;   /* inactive border */
+
+  background-color: rgba(42, 42, 55, 0.85); /* slightly lighter */
+  color: #dcd7ba; /* text */
+
+  font-family: "JetBrainsMono Nerd Font", monospace;
+  font-size: 16px;
+
+  background-repeat: no-repeat;
+  background-position: 50% 35%;
+  background-size: 28%;
+}
+
+button:hover,
+button:focus {
+  border: 2px solid #7e9cd8; /* active border */
+  background-color: rgba(126, 156, 216, 0.18);
+  outline: none;
+}
+
+/* Use system theme icons (no svg files needed) */
+#lock {
+  background-image: -gtk-icontheme("system-lock-screen-symbolic");
+}
+
+#logout {
+  background-image: -gtk-icontheme("system-log-out-symbolic");
+}
+
+#suspend {
+  background-image: -gtk-icontheme("weather-snow-symbolic");
+}
+
+#reboot {
+  background-image: -gtk-icontheme("system-reboot-symbolic");
+}
+
+#shutdown {
+  background-image: -gtk-icontheme("system-shutdown-symbolic");
+}
+

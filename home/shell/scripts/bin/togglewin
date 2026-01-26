@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+CLASS="${1:?class required}"
+shift
+CMD="$*"
+
+SCRATCH="special:scratch"
+CLIENTS="$(hyprctl clients)"
+
+# Get first window address for this class
+ADDR="$(
+  awk -v cls="$CLASS" '
+    $1=="class:" && $2==cls {want=1}
+    want && $1=="Window" {print $2; exit}
+  ' <<<"$CLIENTS"
+)"
+
+# If not running -> launch and exit
+if [[ -z "${ADDR:-}" ]]; then
+  eval "$CMD" &
+  exit 0
+fi
+
+# Get workspace for that window
+WS="$(
+  awk -v addr="$ADDR" '
+    $1=="Window" && $2==addr {inwin=1}
+    inwin && $1=="workspace:" {print $2; exit}
+  ' <<<"$CLIENTS"
+)"
+
+# Toggle show/hide
+if [[ "${WS:-}" == "$SCRATCH" ]]; then
+  CUR_WS="$(hyprctl activeworkspace | awk '/workspace ID/ {print $3}')"
+  hyprctl dispatch movetoworkspacesilent "$CUR_WS,address:$ADDR"
+  hyprctl dispatch focuswindow "address:$ADDR"
+else
+  hyprctl dispatch movetoworkspacesilent "$SCRATCH,address:$ADDR"
+fi

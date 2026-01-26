@@ -20,6 +20,8 @@
 
     nixcord.url = "github:kaylorben/nixcord";
 
+    hyprland.url = "github:hyprwm/Hyprland";
+
     spicetify-nix.url = "github:Gerg-L/spicetify-nix";
 
     stylix = {
