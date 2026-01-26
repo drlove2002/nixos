@@ -1,0 +1,15 @@
+{
+    "diagnostics.globals": [
+        "vim",
+        "s",
+        "t",
+        "fmta",
+        "postfix",
+        "l",
+        "c",
+        "sn",
+        "i",
+        "d",
+        "MiniNotify"
+    ]
+}

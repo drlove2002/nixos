@@ -7,4 +7,6 @@ return {
       colorscheme = "kanagawa", -- Sets the default to Kanagawa
     },
   },
+  { "catppuccin/nvim", enabled = false },
+  { "folke/tokyonight.nvim", enabled = false },
 }
