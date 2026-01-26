@@ -2,6 +2,7 @@
   programs.kitty = {
     enable = true;
     settings = {
+      font_family = "Iosevka Nerd Font";
       enable_audio_bell = false;
       shell = "zsh";
       cursor_trail = 3;

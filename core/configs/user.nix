@@ -7,6 +7,8 @@
       "wheel"
       "video"
       "render"
+      "libvirtd"
+      "kvm"
     ];
   };
 }

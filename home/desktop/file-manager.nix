@@ -13,7 +13,7 @@
       {
         on = "y";
         run = [
-          "shell -- for path in %s; do echo \"file://$path\"; done | wl-copy -t text/uri-list"
+          "shell 'for path in \"$@\"; do echo \"file://$path\"; done | wl-copy -t text/uri-list'"
           "yank"
         ];
         desc = "Yank + Clipboard";
@@ -36,7 +36,7 @@
           4
           3
         ];
-        sort_by = "natural";
+        sort_by = "mtime";
         sort_sensitive = true;
         sort_reverse = false;
         sort_dir_first = true;

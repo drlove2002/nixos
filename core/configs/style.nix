@@ -18,12 +18,13 @@
       dark = "Kanagawa-Dark";
       package = pkgs.kanagawa-icon-theme;
     };
-    opacity = {
-      applications = 0.8;
-      desktop = 0.8;
-      popups = 1;
-      terminal = 0.8;
-    };
+    # No need for opacity
+    # opacity = {
+    #   applications = 0.8;
+    #   desktop = 0.8;
+    #   popups = 1;
+    #   terminal = 0.8;
+    # };
     fonts = {
       sizes = {
         applications = 12;

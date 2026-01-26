@@ -11,6 +11,11 @@
         };
         init.defaultBranch = "main";
         pull.rebase = "true";
+
+        # Force GitHub HTTPS to use SSH
+        url = {
+          "git@github.com:".insteadOf = "https://github.com/";
+        };
       };
     };
     delta = {

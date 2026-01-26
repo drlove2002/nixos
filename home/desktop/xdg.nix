@@ -4,6 +4,7 @@
     "audio/*" = ["mpv.desktop"];
     "video/*" = ["mpv.desktop"];
     "image/*" = ["gimp.desktop"];
+    "application/pdf" = ["org.pwmt.zathura.desktop"];
     "x-scheme-handler/discord" = ["vesktop.desktop"];
     "x-scheme-handler/spotify" = ["spotify.desktop"];
     "x-scheme-handler/tg" = ["telegramdesktop.desktop"];

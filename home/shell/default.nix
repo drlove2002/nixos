@@ -11,5 +11,6 @@
     ./scripts
     ./bat.nix
     ./backup.nix
+    ./gpg.nix
   ];
 }
