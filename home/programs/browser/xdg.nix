@@ -23,6 +23,7 @@
         "x-scheme-handler/http"
         "application/xhtml+xml"
         "application/json"
+        "application/pdf"
         "text/html"
       ]
     );

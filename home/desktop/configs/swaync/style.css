@@ -1,0 +1,102 @@
+/* Kanagawa SwayNC */
+
+* {
+  /* font-family: "JetBrainsMono Nerd Font", monospace; */
+  font-size: 14px;
+}
+
+.control-center {
+  background: rgba(31, 31, 40, 0.92);
+  border-radius: 14px;
+  border: 2px solid #54546d;
+  padding: 12px;
+}
+
+.notification {
+  background: rgba(42, 42, 55, 0.9);
+  border-radius: 12px;
+  border: 1.5px solid #54546d;
+  margin: 8px 0;
+  padding: 10px;
+}
+
+.notification:hover {
+  border-color: #7e9cd8;
+}
+
+.notification-title {
+  color: #dcd7ba;
+  font-weight: bold;
+}
+
+.notification-body {
+  color: #c8c093;
+}
+
+.notification-action {
+  background: rgba(126, 156, 216, 0.18);
+  color: #dcd7ba;
+  border-radius: 8px;
+}
+
+.notification-action:hover {
+  background: rgba(126, 156, 216, 0.35);
+}
+
+.close-button {
+  color: #7e9cd8;
+}
+
+.dnd {
+  background: rgba(42, 42, 55, 0.8);
+  border-radius: 10px;
+  padding: 6px;
+}
+
+.dnd.enabled {
+  background: rgba(106, 149, 137, 0.35);
+}
+
+
+/* ===== Media (MPRIS) Widget ===== */
+
+.mpris {
+  background: rgba(42, 42, 55, 0.9);
+  border-radius: 14px;
+  border: 1.5px solid #54546d;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.mpris:hover {
+  border-color: #7e9cd8;
+}
+
+.mpris-title {
+  color: #dcd7ba;
+  font-weight: bold;
+}
+
+.mpris-subtitle {
+  color: #c8c093;
+}
+
+.mpris-progress {
+  background-color: rgba(84, 84, 109, 0.5);
+  border-radius: 6px;
+}
+
+.mpris-progress-bar {
+  background-color: #7e9cd8;
+  border-radius: 6px;
+}
+
+.mpris-button {
+  background: rgba(126, 156, 216, 0.18);
+  border-radius: 8px;
+  color: #dcd7ba;
+}
+
+.mpris-button:hover {
+  background: rgba(126, 156, 216, 0.35);
+}

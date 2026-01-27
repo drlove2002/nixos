@@ -36,7 +36,7 @@
           4
           3
         ];
-        sort_by = "mtime";
+        sort_by = "normal";
         sort_sensitive = true;
         sort_reverse = false;
         sort_dir_first = true;
