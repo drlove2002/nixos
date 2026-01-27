@@ -21,6 +21,7 @@
     pgloader
     gparted
     ncdu
+    brightnessctl
     ((ffmpeg-full.override {withUnfree = true;}).overrideAttrs (_: {doCheck = false;}))
   ];
 

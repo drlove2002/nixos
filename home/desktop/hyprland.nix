@@ -18,6 +18,8 @@ in {
     hyprpicker
     hypridle
     hyprshot
+    hyprsunset
+    libnotify
     swaynotificationcenter
     playerctl
     wofi

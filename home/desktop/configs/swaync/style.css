@@ -43,6 +43,18 @@
   background: rgba(126, 156, 216, 0.35);
 }
 
+.notification progressbar {
+  min-height: 6px;
+  border-radius: 6px;
+}
+
+.notification progressbar trough {
+  background: rgba(84, 84, 109, 0.5);
+}
+
+.notification progressbar progress {
+  background: #7e9cd8;
+}
 .close-button {
   color: #7e9cd8;
 }
