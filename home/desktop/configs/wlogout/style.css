@@ -19,7 +19,7 @@ button {
   background-color: rgba(42, 42, 55, 0.85); /* slightly lighter */
   color: #dcd7ba; /* text */
 
-  /* font-family: "JetBrainsMono Nerd Font", monospace; */
+  font-family: "JetBrainsMono Nerd Font", monospace;
   font-size: 16px;
 
   background-repeat: no-repeat;
@@ -44,7 +44,11 @@ button:focus {
 }
 
 #suspend {
-  background-image: -gtk-icontheme("weather-snow-symbolic");
+  background-image: -gtk-icontheme("system-suspend-symbolic");
+}
+
+#hibernate {
+  background-image: -gtk-icontheme("system-suspend-hibernate-symbolic");
 }
 
 #reboot {
@@ -54,4 +58,3 @@ button:focus {
 #shutdown {
   background-image: -gtk-icontheme("system-shutdown-symbolic");
 }
-

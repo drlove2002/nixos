@@ -22,6 +22,7 @@
     gparted
     ncdu
     brightnessctl
+    kanagawa-icon-theme
     ((ffmpeg-full.override {withUnfree = true;}).overrideAttrs (_: {doCheck = false;}))
   ];
 

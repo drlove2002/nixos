@@ -11,6 +11,7 @@
     "wofi"
     "wlogout"
     "swaync"
+    "mpv"
   ];
 in {
   home.packages = with pkgs; [
