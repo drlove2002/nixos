@@ -12,6 +12,7 @@
     "wlogout"
     "swaync"
     "mpv"
+    "eww"
   ];
 in {
   home.packages = with pkgs; [
@@ -26,6 +27,7 @@ in {
     wofi
     wlogout
     wofi-emoji
+    eww
   ];
 
   programs.hyprlock.enable = true;

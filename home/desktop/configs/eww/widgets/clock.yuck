@@ -1,0 +1,23 @@
+;; =========================
+;; Live Clock (12h + seconds)
+;; =========================
+
+(defpoll clock_time :interval "1s"
+  "date '+%I:%M:%S %p'")
+
+(defpoll clock_date :interval "60s"
+  "date '+%A · %d %B'")
+
+(defwidget clock_wid []
+  (box
+    :class "clock-container"
+    :orientation "vertical"
+    :spacing 4
+
+    (label
+      :class "clock-time"
+      :text clock_time)
+
+    (label
+      :class "clock-date"
+      :text clock_date)))

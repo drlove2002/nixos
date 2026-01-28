@@ -15,6 +15,8 @@
 
   "widgets": [
     "title",
+    "volume",
+    "backlight",
     "mpris",
     "dnd",
     "notifications"
@@ -22,7 +24,18 @@
 
   "widget-config": {
     "title": {
-      "text": "Control Center"
+      "text": "Control Center",
+      "clear-all-button": true
+    },
+
+    "volume": {
+      "show-output": true,
+      "show-input": true,
+      "step": 5
+    },
+
+    "backlight": {
+      "step": 5
     },
 
     "mpris": {
@@ -31,6 +44,10 @@
       "show-album-art": true,
       "show-buttons": true,
       "show-progress": true
+    },
+
+    "dnd": {
+      "text": "Do Not Disturb"
     }
   }
 }

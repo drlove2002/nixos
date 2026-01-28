@@ -1,29 +1,6 @@
-(defwindow power_menu
-  :monitor 0
-  :stacking "fg"
-  :focusable true
-  :exclusive false
-  :geometry (geometry :x "50%" :y "50%" :anchor "center")
-  (power-box)
-)
+;; =========================
+;; Eww Entry Point
+;; =========================
 
-(defwidget power-box []
-  (box
-    :orientation "vertical"
-    :spacing 12
-    :class "power-box"
-    (label :text "Power Menu")
-    (box :orientation "vertical" :spacing 8
-      (button :class "pbtn" :onclick "" (label :text "⏻ Shutdown"))
-      (button :class "pbtn" :onclick ""   (label :text " Reboot"))
-      (button :class "pbtn" :onclick ""  (label :text "⏾ Suspend"))
-      (button :class "pbtn" :onclick "" (label :text "🛌 Hibernate"))
-      (button :class "pbtn" :onclick "" (label :text "󰍃 Logout"))
-      ; (button :class "pbtn" :onclick "systemctl poweroff" (label :text "⏻ Shutdown"))
-      ; (button :class "pbtn" :onclick "systemctl reboot"   (label :text " Reboot"))
-      ; (button :class "pbtn" :onclick "systemctl suspend"  (label :text "⏾ Suspend"))
-      ; (button :class "pbtn" :onclick "systemctl hibernate" (label :text "🛌 Hibernate"))
-      ; (button :class "pbtn" :onclick "loginctl terminate-user $USER" (label :text "󰍃 Logout"))
-    )
-  )
-)
+(include "widgets/clock.yuck")
+(include "windows/clock.yuck")

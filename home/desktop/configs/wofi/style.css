@@ -11,7 +11,7 @@
 @define-color shadow      rgba(26, 26, 26, 0.93);
 
 * {
-  /* font-family: "JetBrainsMono Nerd Font", "Iosevka Nerd Font", monospace; */
+  font-family: "Maple Mono", monospace;
   font-size: 14px;
 }
 

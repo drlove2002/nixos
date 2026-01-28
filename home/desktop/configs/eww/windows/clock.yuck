@@ -1,0 +1,19 @@
+;; =========================
+;; Clock Overlay Window
+;; =========================
+
+(defwindow clock
+  :monitor 0
+  :anchor "top left"
+  :stacking "overlay"
+  :exclusive false
+  :focusable false
+  :visible false
+
+  :geometry (geometry
+    :x "20px"
+    :y "20px"
+    :width "320px"
+    :height "140px")
+
+  (clock_wid))
