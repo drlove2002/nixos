@@ -13,10 +13,11 @@
       package = pkgs.bibata-cursors;
       size = 24;
     };
+
     icons = {
       enable = true;
-      dark = "Kanagawa-Dark";
-      package = pkgs.kanagawa-icon-theme;
+      dark = "Papirus-Dark";
+      package = pkgs.papirus-icon-theme;
     };
     # No need for opacity
     # opacity = {
@@ -25,6 +26,7 @@
     #   popups = 1;
     #   terminal = 0.8;
     # };
+    #
     fonts = {
       sizes = {
         applications = 12;

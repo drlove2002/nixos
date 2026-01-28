@@ -9,7 +9,6 @@
   configLinks = [
     "hypr"
     "wofi"
-    "wlogout"
     "swaync"
     "mpv"
     "eww"
@@ -25,7 +24,6 @@ in {
     swaynotificationcenter
     playerctl
     wofi
-    wlogout
     wofi-emoji
     eww
   ];

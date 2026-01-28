@@ -11,6 +11,7 @@
   ];
 
   environment.systemPackages = with pkgs; [
+    librsvg
     qrrs
     vim
     wget
@@ -22,7 +23,6 @@
     gparted
     ncdu
     brightnessctl
-    kanagawa-icon-theme
     ((ffmpeg-full.override {withUnfree = true;}).overrideAttrs (_: {doCheck = false;}))
   ];
 
