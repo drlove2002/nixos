@@ -5,5 +5,6 @@
     ./style.nix
     ./hyprland.nix
     ./wleave.nix
+    ./quickshell
   ];
 }
