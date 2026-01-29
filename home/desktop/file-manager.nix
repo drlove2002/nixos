@@ -28,6 +28,11 @@
         run = "shell --block 'ncdu --color dark --confirm-quit \"$PWD\"'";
         desc = "Disk usage of selected (ncdu)";
       }
+      {
+        on = ["E"];
+        run = "shell --block bashmount";
+        desc = "Eject the usb drive from mount point";
+      }
     ];
     settings = {
       yazi = {

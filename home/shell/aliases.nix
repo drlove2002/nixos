@@ -13,6 +13,7 @@
     grep = "rg";
     find = "fd";
     fzf = "sk";
+    bm = "bashmount";
 
     ls = "eza --icons always"; # default view
     ll = "eza -bhl --icons --group-directories-first"; # long list
@@ -30,10 +31,3 @@ in {
     inherit shellAliases;
   };
 }
-# nb = "nixos-sync switch";
-# nu = "nixos-sync update";
-# na = "nixos-sync all";
-# ngc = "nixos-sync clean";
-# nd = "nixos-sync dry";
-# ne = "code $XDG_CONFIG_HOME/nixos/";
-

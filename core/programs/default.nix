@@ -13,6 +13,7 @@
   environment.systemPackages = with pkgs; [
     librsvg
     qrrs
+    bashmount
     vim
     wget
     git

@@ -13,5 +13,6 @@
     LANG = "C.UTF-8";
     LC_ALL = "C.UTF-8";
     NIXOS_CONFIG_DIR = "${config.xdg.configHome}/nixos";
+    MPLBACKEND = "TkAgg";
   };
 }

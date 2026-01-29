@@ -6,7 +6,9 @@
   "control-center-width": 380,
   "control-center-height": 650,
 
-  "timeout": 1.5,
+  "timeout": 5,
+  "timeout-low": 3,
+  "timeout-critical": 15,
   "fit-to-screen": true,
 
   "notification-icon-size": 48,
