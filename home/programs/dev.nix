@@ -18,5 +18,6 @@
 
     protobuf
     texliveFull
+    texpresso
   ];
 }

@@ -2,3 +2,4 @@
 -- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
 -- Add any additional keymaps here
 vim.keymap.set("n", "<BS>d", "<Cmd>:bd<CR>", { desc = "Close Buffer (BS)" })
+vim.keymap.set("n", "<leader>tp", ":TeXpresso %<CR>", { desc = "TeXpresso Preview" })
