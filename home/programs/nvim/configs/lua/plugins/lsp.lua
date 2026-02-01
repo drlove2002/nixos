@@ -25,20 +25,42 @@ return {
           },
           settings = {
             nixpkgs = {
-                expr = "import <nixpkgs> { }",
+              expr = "import <nixpkgs> { }",
             },
             formatting = {
-                command = { "alejandra" },
+              command = { "alejandra" },
             },
             options = {
-                nixos = {
-                  expr = '(builtins.getFlake ("git+file://" + toString ./.)).nixosConfigurations.k-on.options',
-                },
-                home_manager = {
-                  expr = '(builtins.getFlake ("git+file://" + toString ./.)).homeConfigurations."ruixi@k-on".options',
-                },
+              nixos = {
+                expr = '(builtins.getFlake ("git+file://" + toString ./.)).nixosConfigurations.k-on.options',
+              },
+              home_manager = {
+                expr = '(builtins.getFlake ("git+file://" + toString ./.)).homeConfigurations."ruixi@k-on".options',
+              },
             },
-          }
+          },
+        },
+        pyright = {
+          -- Example configuration for another LSP server
+          settings = {
+            python = {
+              analysis = {
+                diagnosticMode = "workspace",
+                typeCheckingMode = "basic",
+                reportOptionalMemberAccess = "none",
+                reportUnionMemberAccess = "none",
+              },
+            },
+          },
+          capabilities = {
+            textDocument = {
+              publishDiagnostics = {
+                tagSupport = {
+                  valueSet = { 2 },
+                },
+              },
+            },
+          },
         },
       },
     },
