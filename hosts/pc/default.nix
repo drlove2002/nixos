@@ -4,6 +4,7 @@
   ...
 }: {
   imports = [
+    inputs.lanzaboote.nixosModules.lanzaboote # Secure Boot support
     inputs.home-manager.nixosModules.home-manager
     inputs.stylix.nixosModules.stylix
     ./hardware-configuration.nix

@@ -8,6 +8,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     home-manager.url = "github:nix-community/home-manager/release-25.11";
+    lanzaboote.url = "github:nix-community/lanzaboote/v1.0.0";
 
     zen-browser.url = "github:0xc000022070/zen-browser-flake";
     nix-vscode-extensions = {
