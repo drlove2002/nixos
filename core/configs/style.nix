@@ -7,6 +7,12 @@
     base16Scheme = "${pkgs.base16-schemes}/share/themes/kanagawa.yaml";
     enable = true;
     autoEnable = true;
+
+    override = {
+      base05 = "EEE6C9";
+      base0D = "98BBF5";
+    };
+
     image = ../../assets/wallpaper.jpg;
     cursor = {
       name = "Bibata-Modern-Ice";

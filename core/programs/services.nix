@@ -1,35 +1,43 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  config,
+  ...
+}: {
   services = {
+    # Core system services
     gvfs.enable = true;
-
-    # Enable Gnome and GDM
-    displayManager.gdm.enable = true;
-    desktopManager.gnome.enable = true;
-    gnome = {
-      tinysparql.enable = true;
-      gnome-keyring.enable = true;
-      core-apps.enable = false;
-      core-developer-tools.enable = false;
-      games.enable = false;
-    };
-
     dbus.enable = true;
     fstrim.enable = true;
+    udisks2.enable = true;
 
-    # needed for GNOME services outside of GNOME Desktop
-    dbus.packages = with pkgs; [
-      gcr
-      gnome-settings-daemon
-    ];
-
+    # Enable the KDE Plasma Desktop Environment.
+    displayManager.sddm = {
+      enable = true;
+      wayland.enable = true;
+      theme = "sddm-astronaut-theme";
+      settings = {
+        Theme = {
+          Current = "sddm-astronaut-theme";
+          CursorTheme = config.stylix.cursor.name;
+          CursorSize = config.stylix.cursor.size;
+        };
+      };
+      extraPackages = with pkgs; [
+        kdePackages.qtsvg
+        kdePackages.qtvirtualkeyboard
+        kdePackages.qtmultimedia
+      ];
+    };
+    displayManager.defaultSession = "hyprland";
+    # Power / logind behavior
     logind.settings = {
       Login = {
         HandlePowerKey = "suspend-then-hibernate";
-        HandlePowerKeyLongPress = "poweroff"; # Long press = shutdown
+        HandlePowerKeyLongPress = "poweroff";
         HandleLidSwitch = "suspend-then-hibernate";
         HandleLidSwitchExternalPower = "suspend-then-hibernate";
         KillUserProcesses = false;
-        HibernateDelaySec = 3600; # 1 hour
+        HibernateDelaySec = 3600;
         InhibitorsMax = 8192;
         PowerKeyIgnoreInhibited = true;
         SuspendKeyIgnoreInhibited = true;
@@ -37,14 +45,17 @@
         LidSwitchIgnoreInhibited = true;
       };
     };
-
-    udisks2.enable = true;
   };
+
+  environment.systemPackages = with pkgs; [
+    (sddm-astronaut.override {embeddedTheme = "hyprland_kath";})
+  ];
   systemd.sleep.extraConfig = ''
     [Sleep]
     SuspendState=mem
     HibernateDelaySec=3600
     HibernateMode=shutdown
   '';
+
   powerManagement.enable = true;
 }
