@@ -8,6 +8,7 @@
     ./suwayomi.nix
     ./steam.nix
     ./vm.nix
+    ./movieshare.nix
   ];
 
   environment.systemPackages = with pkgs; [

@@ -10,7 +10,6 @@
     fstrim.enable = true;
     udisks2.enable = true;
 
-    # Enable the KDE Plasma Desktop Environment.
     displayManager.sddm = {
       enable = true;
       wayland.enable = true;
