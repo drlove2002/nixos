@@ -11,5 +11,6 @@
     libreoffice-qt-fresh # Ms-Word
     (zathura.override
       {plugins = with zathuraPkgs; [zathura_pdf_mupdf];})
+    kdePackages.kdenlive
   ];
 }
