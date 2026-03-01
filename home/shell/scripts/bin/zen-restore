@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+MOUNT="/data"
+BACKUP="$MOUNT/backup"
+ARCHIVE="$BACKUP/zen.tar.zst"
+# Updated path after migration
+PROFILE="$HOME/.config/zen/love"
+
+# Check drive is mounted
+if ! findmnt --target "$MOUNT" >/dev/null 2>&1; then
+  echo "Backup drive not mounted — cannot restore"
+  exit 1
+fi
+
+# Check archive exists
+if [ ! -f "$ARCHIVE" ]; then
+  echo "No backup archive found at: $ARCHIVE"
+  exit 1
+fi
+
+# Make sure Zen isn't running
+if pgrep -x "zen" > /dev/null || pgrep -x "zen-beta" > /dev/null; then
+  echo "Zen Browser is running — please close it first"
+  exit 1
+fi
+
+# Create profile dir if missing
+mkdir -p "$PROFILE"
+
+echo "Restoring from $ARCHIVE to $PROFILE..."
+
+tar --zstd -xf "$ARCHIVE" -C "$PROFILE"
+
+echo "Done 🧡 — you can now launch Zen"
