@@ -8,6 +8,11 @@
         user = "ubuntu";
         identityFile = "~/.ssh/ww.pem";
       };
+      fact = {
+        hostname = "16.112.107.158";
+        user = "admin";
+        identityFile = "~/.ssh/factorio.pem";
+      };
     };
   };
 }

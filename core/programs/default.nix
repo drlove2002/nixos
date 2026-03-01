@@ -9,6 +9,7 @@
     ./steam.nix
     ./vm.nix
     ./movieshare.nix
+    # ./factorio.nix
   ];
 
   environment.systemPackages = with pkgs; [
