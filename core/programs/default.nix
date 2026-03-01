@@ -18,6 +18,7 @@
     vim
     wget
     git
+    jq
     glibcLocales
     killall
     sqlite
