@@ -19,5 +19,7 @@
     protobuf
     texliveFull
     texpresso
+
+    claude-code
   ];
 }

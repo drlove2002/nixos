@@ -16,6 +16,7 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
     nixcord.url = "github:kaylorben/nixcord";
+    claude-code.url = "github:sadjow/claude-code-nix";
     hyprland.url = "github:hyprwm/Hyprland";
     quickshell.url = "git+https://git.outfoxxed.me/outfoxxed/quickshell";
     spicetify-nix.url = "github:Gerg-L/spicetify-nix";
