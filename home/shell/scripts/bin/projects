@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$HOME/Projects"
+TERMINAL="${TERMINAL:-kitty}"
+NVIM_CMD="${NVIM_CMD:-nvim}"
+
+# ensure required tools exist
+command -v wofi >/dev/null 2>&1 || { echo "wofi required but not found"; exit 1; }
+command -v fd >/dev/null 2>&1 || { echo "fd required but not found"; exit 1; }
+[ -d "$ROOT" ] || { echo "Projects directory not found: $ROOT"; exit 0; }
+
+# detect project language by marker files
+detect_emoji() {
+  local dir="$1"
+  [[ -f "$dir/Cargo.toml" ]] && { echo '🦀'; return; }
+  [[ -f "$dir/go.mod" ]] && { echo '🐹'; return; }
+  [[ -f "$dir/package.json" ]] && { echo '🟨'; return; }
+  [[ -f "$dir/pyproject.toml" || -f "$dir/requirements.txt" ]] && { echo '🐍'; return; }
+  [[ -f "$dir/Gemfile" ]] && { echo '💎'; return; }
+  [[ -f "$dir/composer.json" ]] && { echo '🐘'; return; }
+  [[ -f "$dir/flake.nix" ]] && { echo '❄️'; return; }
+  echo '📁'
+}
+
+# get git branch info with emoji
+git_info() {
+  local dir="$1"
+  if ! git -C "$dir" rev-parse --is-inside-work-tree &>/dev/null; then
+    return
+  fi
+  
+  local branch
+  branch=$(git -C "$dir" symbolic-ref --short HEAD 2>/dev/null || git -C "$dir" rev-parse --short HEAD 2>/dev/null || echo "")
+  
+  if [[ -n "$branch" ]]; then
+    # check if dirty
+    if [[ -n $(git -C "$dir" status --porcelain 2>/dev/null) ]]; then
+      echo "  ( ${branch}*)"
+    else
+      echo "  ( ${branch})"
+    fi
+  fi
+}
+
+# collect all projects
+declare -a projects=()
+while IFS= read -r dir; do
+  [[ -d "$dir" ]] || continue
+  emoji=$(detect_emoji "$dir")
+  name=$(basename "$dir")
+  git=$(git_info "$dir")
+  
+  # store: path|display
+  projects+=("${dir}|${emoji}  ${name}${git}")
+done < <(fd --type d --max-depth 2 --base-directory "$ROOT" --absolute-path | sort)
+
+# nothing found
+[[ ${#projects[@]} -eq 0 ]] && exit 0
+
+# build menu (just the display parts)
+menu=""
+for entry in "${projects[@]}"; do
+  display="${entry#*|}"
+  menu+="${display}"$'\n'
+done
+
+# show wofi menu
+choice=$(echo -n "$menu" | wofi --dmenu --prompt "Projects" --insensitive --width 700 --height 600)
+
+# cancelled
+[[ -z "$choice" ]] && exit 0
+
+# find matching project path
+selected=""
+for entry in "${projects[@]}"; do
+  path="${entry%%|*}"
+  display="${entry#*|}"
+  if [[ "$display" == "$choice" ]]; then
+    selected="$path"
+    break
+  fi
+done
+
+[[ -z "$selected" ]] && { echo "invalid selection"; exit 1; }
+
+# launch nvim in the selected project
+exec "$TERMINAL" -e sh -c "cd '$selected' && exec direnv exec . $NVIM_CMD"
