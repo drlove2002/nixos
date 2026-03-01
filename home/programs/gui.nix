@@ -12,5 +12,7 @@
     (zathura.override
       {plugins = with zathuraPkgs; [zathura_pdf_mupdf];})
     kdePackages.kdenlive
+    (jetbrains.plugins.addPlugins jetbrains.pycharm ["ideavim"])
+    redisinsight
   ];
 }
