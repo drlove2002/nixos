@@ -15,6 +15,7 @@
       adblock
       hidePodcasts
       shuffle # shuffle+ (special characters are sanitized out of extension names)
+      keyboardShortcut
     ];
     enabledCustomApps = with spicePkgs.apps; [
       newReleases
