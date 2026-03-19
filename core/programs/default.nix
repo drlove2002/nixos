@@ -9,6 +9,7 @@
     ./steam.nix
     ./vm.nix
     ./movieshare.nix
+    ./pccontrol.nix
     # ./factorio.nix
   ];
 

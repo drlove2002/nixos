@@ -27,6 +27,15 @@
   services.avahi = {
     enable = true;
     openFirewall = true;
+    allowInterfaces = ["enp3s0"];
+    publish = {
+      enable = true;
+      addresses = true;
+      domain = true;
+      workstation = true;
+      hinfo = true;
+    };
+    nssmdns4 = true;
   };
 
   # Prevent automatic start at boot; we will toggle with movieshare on/off
