@@ -10,7 +10,6 @@
       useQuickCss = true;
       frameless = true; # Set some Vencord/Equicord options
       plugins = {
-        betterFolders.enable = true;
         betterGifAltText.enable = true;
         betterGifPicker.enable = true;
         betterNotesBox.enable = true;
