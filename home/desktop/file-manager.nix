@@ -24,6 +24,21 @@
         desc = "File content -> clipboard";
       }
       {
+        on = ["g" "n"];
+        run = "cd ~/Documents";
+        desc = "~/Documents";
+      }
+      {
+        on = ["g" "p"];
+        run = "cd ~/Pictures";
+        desc = "~/Pictures";
+      }
+      {
+        on = ["g" "m"];
+        run = "cd ~/Videos/Movies";
+        desc = "Goto Movies";
+      }
+      {
         on = ["<C-d>"];
         run = "shell --block 'ncdu --color dark --confirm-quit \"$PWD\"'";
         desc = "Disk usage of selected (ncdu)";
