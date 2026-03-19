@@ -30,6 +30,12 @@ in {
         set +a
       fi
 
+      export PNPM_HOME="/home/love/.local/share/pnpm"
+      case ":$PATH:" in
+        *":$PNPM_HOME:"*) ;;
+        *) export PATH="$PNPM_HOME:$PATH" ;;
+      esac
+
       # Custom Environment Variables (Zsh specific or if not in common)
       export LESSHISTFILE="${cache}/less/history"
       export LESSKEY="${c}/less/lesskey"
