@@ -1,3 +1,4 @@
+
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
@@ -66,6 +67,6 @@ assets/                 # wallpaper.jpg used by Stylix
 - `home-manager` — release-25.11 branch
 - `lanzaboote` — Secure Boot
 - `nixcord` — Discord/Vencord config via Home Manager
-- `claude-code` — Claude Code CLI flake
+- `claude-code` — Claude Code flake
 - `quickshell` — custom shell/bar (from outfoxxed's git)
 - `zen-browser`, `spicetify-nix`, `nix-vscode-extensions`, `hyprland`

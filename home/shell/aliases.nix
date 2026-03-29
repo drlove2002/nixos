@@ -14,6 +14,7 @@
     find = "fd";
     fzf = "sk";
     bm = "bashmount";
+    ssh = "kitten ssh";
 
     ls = "eza --icons always"; # default view
     ll = "eza -bhl --icons --group-directories-first"; # long list

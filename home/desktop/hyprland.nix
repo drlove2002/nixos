@@ -14,6 +14,7 @@
     "eww"
   ];
 in {
+  wayland.windowManager.hyprland.systemd.enable = false;
   home.packages = with pkgs; [
     hyprpolkitagent
     hyprpaper

@@ -1,12 +1,7 @@
-{
-  inputs,
-  pkgs,
-  username,
-  ...
-}: {
+{username, ...}: {
   stylix.targets.zen-browser.profileNames = [username];
   xdg.mimeApps = let
-    value = inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.beta.meta.desktopFileName;
+    value = "zen-beta.desktop";
     associations = builtins.listToAttrs (
       map (name: {inherit name value;}) [
         "application/x-extension-shtml"

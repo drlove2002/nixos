@@ -13,6 +13,16 @@
         user = "admin";
         identityFile = "~/.ssh/factorio.pem";
       };
+      az = {
+        hostname = "20.219.230.10";
+        user = "azure";
+        identityFile = "~/.ssh/azur.pem";
+      };
+      pi = {
+        hostname = "100.96.186.96";
+        user = "love";
+        identityFile = "~/.ssh/id_ed25519";
+      };
     };
   };
 }

@@ -12,7 +12,6 @@
   ];
   programs.zen-browser = {
     enable = true;
-    suppressXdgMigrationWarning = true;
     profiles."${username}" = {
       id = 0;
       name = "${username}";

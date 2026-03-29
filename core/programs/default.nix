@@ -6,6 +6,7 @@
     ./xserver.nix
     ./services.nix
     ./suwayomi.nix
+    ./stirling-pdf.nix
     ./steam.nix
     ./vm.nix
     ./movieshare.nix

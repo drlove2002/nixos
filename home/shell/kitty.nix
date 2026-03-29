@@ -12,6 +12,13 @@
       mouse_hide_wait = 3.0;
       hide_window_decorations = "yes";
       notify_on_cmd_finish = "invisible 20";
+
+      # Enable remote control for session management
+      allow_remote_control = "socket-only";
+      listen_on = "unix:/tmp/kitty-love";
     };
   };
+
+  # Create persistent session directory
+  xdg.configFile."kitty/sessions/.keep".text = "";
 }

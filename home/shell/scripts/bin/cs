@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# cs: Use Claude Pro if available, else fallback to OpenRouter auto
+
+OPENROUTER_API_KEY="${OPENROUTER_API_KEY:?Set OPENROUTER_API_KEY first}"
+CREDENTIALS_FILE="$HOME/.claude/.credentials.json"
+CREDENTIALS_BACKUP="$HOME/.claude/.credentials.bak.json"
+CLAUDE_BIN="$(which claude)"
+
+# Restore credentials on exit (Ctrl+C, crash, etc.)
+trap '[[ -f "$CREDENTIALS_BACKUP" ]] && mv "$CREDENTIALS_BACKUP" "$CREDENTIALS_FILE"' EXIT INT TERM
+
+use_openrouter() {
+  echo "⚡ Using OpenRouter (stepfun/step-3.5-flash:free)..."
+  [[ -f "$CREDENTIALS_FILE" ]] && mv "$CREDENTIALS_FILE" "$CREDENTIALS_BACKUP"
+  ANTHROPIC_BASE_URL="https://openrouter.ai/api" \
+  ANTHROPIC_AUTH_TOKEN="$OPENROUTER_API_KEY" \
+  ANTHROPIC_API_KEY="" \
+  ANTHROPIC_DEFAULT_SONNET_MODEL="stepfun/step-3.5-flash:free" \
+  ANTHROPIC_DEFAULT_OPUS_MODEL="stepfun/step-3.5-flash:free" \
+  ANTHROPIC_DEFAULT_HAIKU_MODEL="stepfun/step-3.5-flash:free" \
+  exec "$CLAUDE_BIN" "$@"
+}
+
+# If no credentials exist, just go straight to OpenRouter
+if [[ ! -f "$CREDENTIALS_FILE" ]]; then
+  use_openrouter "$@"
+fi
+
+# Check if rate limited
+echo "🔍 Checking Claude Pro..."
+PROBE=$(echo "hi" | timeout 10 "$CLAUDE_BIN" --print 2>&1 || true)
+
+if echo "$PROBE" | grep -qi "hit your limit\|rate.limit\|usage limit"; then
+  RESET=$(echo "$PROBE" | grep -o 'resets [^·]*' | head -1)
+  echo "⚠️  Rate limited. ${RESET:-Limit reached.}"
+  use_openrouter "$@"
+else
+  echo "✅ Claude Pro available."
+  exec "$CLAUDE_BIN" "$@"
+fi

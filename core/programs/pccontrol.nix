@@ -272,7 +272,12 @@ in {
   services.nginx = {
     enable = true;
     virtualHosts."pccontrol" = {
-      listen = [{addr = "0.0.0.0"; port = 80;}];
+      listen = [
+        {
+          addr = "0.0.0.0";
+          port = 80;
+        }
+      ];
       locations."/" = {
         proxyPass = "http://127.0.0.1:${webPort}";
         extraConfig = "proxy_read_timeout 3600;\n${onlyPhone}";

@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# Stirling PDF launcher - starts server on-demand and auto-configures
+
+SERVER_URL="http://localhost:38273"
+SERVICE_NAME="stirling-pdf.service"
+CONFIG_DIR="$HOME/.config/Stirling-PDF"
+
+# Pre-configure the app with server URL if config doesn't exist
+if [ ! -f "$CONFIG_DIR/connection.json" ]; then
+    echo "📝 Pre-configuring Stirling PDF desktop app..."
+    mkdir -p "$CONFIG_DIR"
+
+    # Create the connection configuration
+    # This is based on Tauri's store format (uses snake_case)
+    cat > "$CONFIG_DIR/connection.json" << EOF
+{
+  "setup_completed": true,
+  "connection_mode": "self-hosted",
+  "server_url": "$SERVER_URL",
+  "lock_connection_mode": false
+}
+EOF
+    echo "✓ Configuration created at $CONFIG_DIR/connection.json"
+fi
+
+# Check if server is already running
+if ! systemctl is-active --quiet "$SERVICE_NAME"; then
+    echo "🚀 Starting Stirling PDF server..."
+    sudo systemctl start "$SERVICE_NAME"
+
+    # Wait for service to be ready
+    echo "⏳ Waiting for server to start..."
+    for i in {1..30}; do
+        if curl -s "$SERVER_URL" > /dev/null 2>&1; then
+            echo "✓ Server ready at $SERVER_URL"
+            break
+        fi
+        sleep 0.5
+    done
+fi
+
+# Launch the desktop app
+stirling-pdf "$@"
+APP_EXIT_CODE=$?
+
+# Optional: Stop the service when app closes
+# Uncomment the lines below if you want the server to stop when you close the app
+# echo "🛑 Stopping Stirling PDF server..."
+# sudo systemctl stop "$SERVICE_NAME"
+
+exit $APP_EXIT_CODE

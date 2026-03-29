@@ -27,7 +27,7 @@
         kdePackages.qtmultimedia
       ];
     };
-    displayManager.defaultSession = "hyprland";
+    displayManager.defaultSession = "hyprland-uwsm";
     # Power / logind behavior
     logind.settings = {
       Login = {

@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# ── Load environment ──────────────────────────────────────────────────────────
+set -a
+[ -f "${XDG_CONFIG_HOME:-$HOME/.config}/.env" ] && \
+  source "${XDG_CONFIG_HOME:-$HOME/.config}/.env"
+set +a
+
+STATE_FILE="${HOME}/.local/state/project-launcher/open-projects"
+KITTY_WS1="unix:/tmp/kitty-ws1"
+KITTY_WS3="unix:/tmp/kitty-ws3"
+NVIM_CMD="${NVIM_CMD:-nvim}"
+CLAUDE="${HOME}/.local/bin/cs"
+
+[[ -f "$STATE_FILE" && -s "$STATE_FILE" ]] || exit 0
+
+# ── Helpers ───────────────────────────────────────────────────────────────────
+ensure_kitty() {
+  local ws="$1"
+  local sock sock_path ws_num
+  [[ "$ws" == "ws1" ]] && sock="$KITTY_WS1" && ws_num=1 \
+                       || sock="$KITTY_WS3" && ws_num=3
+  sock_path="${sock#unix:}"
+
+  [[ -S "$sock_path" ]] && return 0
+
+  hyprctl dispatch exec "[workspace ${ws_num} silent]" \
+    "kitty --listen-on ${sock}" &
+
+  local retries=20
+  while [[ $retries -gt 0 ]]; do
+    [[ -S "$sock_path" ]] && return 0
+    sleep 0.3
+    (( retries-- ))
+  done
+
+  echo "Failed to start kitty for ${ws}" >&2
+  return 1
+}
+
+kitty_run() {
+  local ws="$1"; shift
+  local sock
+  [[ "$ws" == "ws1" ]] && sock="$KITTY_WS1" || sock="$KITTY_WS3"
+  kitty @ --to "$sock" "$@" 2>/dev/null
+}
+
+kitty_new_tab() {
+  local ws="$1" title="$2" proj="$3"; shift 3
+  kitty_run "$ws" launch \
+    --type=tab --tab-title "$title" --cwd "$proj" \
+    "$@" || echo ""
+}
+
+get_tab_id_for_window() {
+  local ws="$1" win_id="$2"
+  local sock
+  [[ "$ws" == "ws1" ]] && sock="$KITTY_WS1" || sock="$KITTY_WS3"
+  kitty @ --to "$sock" ls 2>/dev/null \
+    | jq -r --argjson wid "$win_id" \
+      '.[].tabs[] | select(.windows[].id == $wid) | .id' \
+    | head -n1
+}
+
+close_initial_tab() {
+  local ws="$1"
+  local sock
+  [[ "$ws" == "ws1" ]] && sock="$KITTY_WS1" || sock="$KITTY_WS3"
+  local init_tab_id
+  init_tab_id=$(kitty @ --to "$sock" ls 2>/dev/null \
+    | jq -r '
+        .[].tabs[]
+        | select(
+            (.windows | length == 1)
+            and (.windows[0].foreground_processes == [])
+          )
+        | .id
+      ' | head -n1)
+  [[ -n "$init_tab_id" ]] && \
+    kitty @ --to "$sock" close-tab \
+      --match "tab:id:${init_tab_id}" 2>/dev/null || true
+}
+
+# ── Ensure kitty instances are running ───────────────────────────────────────
+ensure_kitty ws1
+ensure_kitty ws3
+
+# ── Restore each project ──────────────────────────────────────────────────────
+first_project=true
+
+while IFS=$'\t' read -r proj _wins; do
+  [[ -n "$proj" && -d "$proj" ]] || continue
+  name=$(basename "$proj")
+
+  # ws3: nvim tab
+  kitty_new_tab ws3 "$name" "$proj" \
+    zsh -i -c "eval \"\$(direnv export zsh)\" && clear && ${NVIM_CMD} -c 'lua require(\"persistence\").load()'; exec zsh" \
+    > /dev/null
+
+  # ws1: claude tab then split zsh
+  wid_claude=$(kitty_new_tab ws1 "$name" "$proj" \
+    zsh -i -c "eval \"\$(direnv export zsh)\" && clear && ${CLAUDE}; exec zsh" \
+    || echo "")
+
+  if [[ -n "$wid_claude" ]]; then
+    sleep 0.3
+    tab_id=$(get_tab_id_for_window ws1 "$wid_claude")
+
+    if [[ -n "$tab_id" ]]; then
+      kitty_run ws1 launch \
+        --type=window \
+        --match "tab:id:${tab_id}" \
+        --cwd "$proj" \
+        zsh -i -c "eval \"\$(direnv export zsh)\" && clear; exec zsh" \
+        > /dev/null || true
+
+      sleep 0.2
+      kitty_run ws1 set-window-layout \
+        --match "tab:id:${tab_id}" tall || true
+    fi
+  fi
+
+  if $first_project; then
+    sleep 0.2
+    close_initial_tab ws1
+    close_initial_tab ws3
+    first_project=false
+  fi
+
+done < "$STATE_FILE"

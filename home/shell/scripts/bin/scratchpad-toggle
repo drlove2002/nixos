@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# General scratchpad toggle script for Hyprland
+# Usage: scratchpad-toggle <workspace_name> <window_class> <launch_command>
+# Example: scratchpad-toggle yazi scratch-yazi "kitty --class scratch-yazi -e yazi"
+
+WORKSPACE="$1"
+CLASS="$2"
+COMMAND="$3"
+
+# Check if window already exists
+if ! hyprctl clients | grep -q "$CLASS"; then
+    # Launch the app
+    eval "$COMMAND" &
+
+    # Wait for window to actually appear (max 2 seconds)
+    for i in {1..20}; do
+        if hyprctl clients | grep -q "$CLASS"; then
+            break
+        fi
+        sleep 0.1
+    done
+fi
+
+# Check if the special workspace is currently active
+if hyprctl activeworkspace -j | jq -e ".name == \"special:$WORKSPACE\"" > /dev/null 2>&1; then
+    # Workspace is active, hide it
+    hyprctl dispatch togglespecialworkspace "$WORKSPACE"
+else
+    # Workspace is not active, show it and focus the window
+    hyprctl dispatch togglespecialworkspace "$WORKSPACE"
+    sleep 0.1
+    hyprctl dispatch focuswindow "^($CLASS)$"
+fi

@@ -1,88 +1,420 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT="$HOME/Projects"
-TERMINAL="${TERMINAL:-kitty}"
-NVIM_CMD="${NVIM_CMD:-nvim}"
+# ── Environment & Config ──────────────────────────────────────────────────────
+set -a
+[ -f "${XDG_CONFIG_HOME:-$HOME/.config}/.env" ] && source "${XDG_CONFIG_HOME:-$HOME/.config}/.env"
+set +a
 
-# ensure required tools exist
-command -v wofi >/dev/null 2>&1 || { echo "wofi required but not found"; exit 1; }
-command -v fd >/dev/null 2>&1 || { echo "fd required but not found"; exit 1; }
-[ -d "$ROOT" ] || { echo "Projects directory not found: $ROOT"; exit 0; }
+ROOTS=(
+  "${HOME}/Projects"
+)
 
-# detect project language by marker files
-detect_emoji() {
+NVIM="${NVIM_CMD:-nvim}"
+CLAUDE="$(which claude)"
+STATE="${HOME}/.local/state/project-launcher/open-projects"
+
+WS1="${KITTY_WS1:-unix:/tmp/kitty-ws1}"   # claude + terminal split, tall layout
+WS3="${KITTY_WS3:-unix:/tmp/kitty-ws3}"   # nvim
+
+RESTORE_MODE=false
+[[ "${1:-}" == "--restore" ]] && RESTORE_MODE=true
+
+mkdir -p "$(dirname "$STATE")"
+
+# ── Guards ────────────────────────────────────────────────────────────────────
+[[ -x "$CLAUDE" ]]             || { echo "claude not found: $CLAUDE" >&2; exit 1; }
+command -v kitty   &>/dev/null || { echo "kitty not found" >&2; exit 1; }
+command -v jq      &>/dev/null || { echo "jq not found" >&2; exit 1; }
+command -v hyprctl &>/dev/null || { echo "hyprctl not found" >&2; exit 1; }
+
+if ! $RESTORE_MODE; then
+  command -v wofi &>/dev/null || { echo "wofi not found" >&2; exit 1; }
+  command -v fd   &>/dev/null || { echo "fd not found" >&2; exit 1; }
+
+  any_root=false
+  for root in "${ROOTS[@]}"; do
+    [[ -d "$root" ]] && { any_root=true; break; }
+  done
+  $any_root || { echo "No project roots found" >&2; exit 0; }
+fi
+
+# ── State ─────────────────────────────────────────────────────────────────────
+declare -A state_wins=() previously_open=()
+declare -A selected_set=()
+declare -a selected_paths=()
+
+if [[ -f "$STATE" ]]; then
+  while IFS=$'\t' read -r proj wins; do
+    [[ -n "$proj" ]] || continue
+    state_wins["$proj"]="${wins:-}"
+    previously_open["$proj"]=1
+  done < "$STATE"
+fi
+
+save_state() {
+  : > "$STATE"
+  local p
+  for p in "${selected_paths[@]+"${selected_paths[@]}"}"; do
+    printf '%s\t%s\n' "$p" "${state_wins[$p]:-}" >> "$STATE"
+  done
+}
+
+add_selected() {
+  local proj="$1"
+  [[ -v selected_set["$proj"] ]] && return 0
+  selected_set["$proj"]=1
+  selected_paths+=("$proj")
+}
+
+remove_selected() {
+  local proj="$1"
+  unset "selected_set[$proj]"
+  local -a keep=()
+  local p
+  for p in "${selected_paths[@]+"${selected_paths[@]}"}"; do
+    [[ "$p" == "$proj" ]] || keep+=("$p")
+  done
+  selected_paths=("${keep[@]+"${keep[@]}"}")
+}
+
+# ── Kitty helpers ─────────────────────────────────────────────────────────────
+ksock() {
+  [[ "$1" == "ws1" ]] && echo "$WS1" || echo "$WS3"
+}
+
+krun() {
+  local s
+  s=$(ksock "$1")
+  shift
+  kitty @ --to "$s" "$@" 2>/dev/null
+}
+
+kitty_ready() {
+  local s path
+  s=$(ksock "$1")
+  path="${s#unix:}"
+  [[ -S "$path" ]] || return 1
+  kitty @ --to "$s" ls >/dev/null 2>&1
+}
+
+knew_tab() {
+  krun "$1" launch --type=tab --tab-title "$2" --cwd "$3" "${@:4}" || echo ""
+}
+
+# For --type=window, --match targets an existing window
+ksplit() {
+  krun "$1" launch --type=window --match "id:$2" --cwd "$3" "${@:4}" || echo ""
+}
+
+ensure_ws1_layout_defaults() {
+  kitty_ready ws1 || return 0
+  krun ws1 set-enabled-layouts --match all --configured tall >/dev/null 2>&1 || true
+}
+
+apply_ws1_tall_by_window() {
+  local wid="$1" i
+  [[ -n "$wid" ]] || return 1
+  for i in {1..12}; do
+    krun ws1 set-window-layout --match "window_id:$wid" tall >/dev/null 2>&1 && return 0
+    sleep 0.1
+  done
+  return 1
+}
+
+ensure_kitty() {
+  local ws="$1" sock sock_path ws_num pid addr i
+  sock=$(ksock "$ws")
+  sock_path="${sock#unix:}"
+  [[ "$ws" == "ws1" ]] && ws_num=1 || ws_num=3
+
+  if kitty_ready "$ws"; then
+    [[ "$ws" == "ws1" ]] && ensure_ws1_layout_defaults
+    return 0
+  fi
+
+  if [[ -S "$sock_path" ]] && ! kitty @ --to "$sock" ls >/dev/null 2>&1; then
+    rm -f "$sock_path" 2>/dev/null || true
+  fi
+
+  kitty --listen-on "$sock" >/dev/null 2>&1 &
+  pid=$!
+
+  i=30
+  until kitty_ready "$ws" || (( --i == 0 )); do
+    sleep 0.2
+  done
+  kitty_ready "$ws" || { echo "kitty $ws failed to become ready" >&2; return 1; }
+
+  addr=""
+  i=20
+  until addr=$(
+    hyprctl clients -j 2>/dev/null \
+      | jq -r --argjson p "$pid" '.[] | select(.pid == $p) | .address' \
+      | head -n1
+  ) && [[ -n "$addr" ]] || (( --i == 0 )); do
+    sleep 0.2
+  done
+
+  [[ -n "$addr" ]] && hyprctl dispatch movetoworkspacesilent "${ws_num},address:${addr}" >/dev/null 2>&1 || true
+
+  [[ "$ws" == "ws1" ]] && ensure_ws1_layout_defaults
+}
+
+close_blank_tab() {
+  local s tid
+  s=$(ksock "$1")
+  kitty_ready "$1" || return 0
+
+  tid=$(
+    kitty @ --to "$s" ls 2>/dev/null \
+      | jq -r '
+          .[].tabs[]
+          | select(
+              (.windows | length == 1)
+              and
+              (
+                (.windows[0].foreground_processes == [])
+                or
+                (.windows[0].foreground_processes | length == 0)
+              )
+            )
+          | .id
+        ' \
+      | head -n1
+  )
+  [[ -n "$tid" ]] && kitty @ --to "$s" close-tab --match "id:$tid" >/dev/null 2>&1 || true
+}
+
+scan_win_ids() {
+  local proj="$1" result="" ws s ids
+  for ws in ws1 ws3; do
+    kitty_ready "$ws" || continue
+    s=$(ksock "$ws")
+    ids=$(
+      kitty @ --to "$s" ls 2>/dev/null \
+        | jq -r --arg p "$proj" '
+            .[].tabs[].windows[]
+            | select(any(.foreground_processes[]?; (.cwd? // "") | startswith($p)))
+            | .id
+          ' 2>/dev/null \
+        | sort -u \
+        | while read -r id; do
+            [[ -n "$id" ]] && printf '%s:%s\n' "$ws" "$id"
+          done
+    ) || true
+    [[ -n "$ids" ]] && result+="$ids"$'\n'
+  done
+  printf '%s' "$result" | awk 'NF' | paste -sd' ' -
+}
+
+# ── Project presentation helpers ──────────────────────────────────────────────
+project_emoji() {
   local dir="$1"
-  [[ -f "$dir/Cargo.toml" ]] && { echo '🦀'; return; }
-  [[ -f "$dir/go.mod" ]] && { echo '🐹'; return; }
-  [[ -f "$dir/package.json" ]] && { echo '🟨'; return; }
-  [[ -f "$dir/pyproject.toml" || -f "$dir/requirements.txt" ]] && { echo '🐍'; return; }
-  [[ -f "$dir/Gemfile" ]] && { echo '💎'; return; }
-  [[ -f "$dir/composer.json" ]] && { echo '🐘'; return; }
-  [[ -f "$dir/flake.nix" ]] && { echo '❄️'; return; }
+  local -A m=(
+    [Cargo.toml]='🦀'
+    [go.mod]='🐹'
+    [package.json]='🟨'
+    [pyproject.toml]='🐍'
+    [requirements.txt]='🐍'
+    [Gemfile]='💎'
+    [composer.json]='🐘'
+    [flake.nix]='❄️'
+  )
+  local f
+  for f in "${!m[@]}"; do
+    [[ -f "$dir/$f" ]] && { echo "${m[$f]}"; return; }
+  done
   echo '📁'
 }
 
-# get git branch info with emoji
-git_info() {
-  local dir="$1"
-  if ! git -C "$dir" rev-parse --is-inside-work-tree &>/dev/null; then
-    return
-  fi
-  
-  local branch
-  branch=$(git -C "$dir" symbolic-ref --short HEAD 2>/dev/null || git -C "$dir" rev-parse --short HEAD 2>/dev/null || echo "")
-  
-  if [[ -n "$branch" ]]; then
-    # check if dirty
-    if [[ -n $(git -C "$dir" status --porcelain 2>/dev/null) ]]; then
-      echo "  ( ${branch}*)"
-    else
-      echo "  ( ${branch})"
-    fi
+project_branch() {
+  local dir="$1" b
+  git -C "$dir" rev-parse --is-inside-work-tree &>/dev/null || return 0
+  b=$(
+    git -C "$dir" symbolic-ref --short HEAD 2>/dev/null \
+      || git -C "$dir" rev-parse --short HEAD 2>/dev/null
+  ) || return 0
+  [[ -n "$(git -C "$dir" status --porcelain 2>/dev/null)" ]] \
+    && echo "  (${b}*)" || echo "  (${b})"
+}
+
+pretty_path() {
+  local p="$1"
+  if [[ "$p" == "$HOME/"* ]]; then
+    printf '~/%s' "${p#"$HOME/"}"
+  else
+    printf '%s' "$p"
   fi
 }
 
-# collect all projects
-declare -a projects=()
-while IFS= read -r dir; do
-  [[ -d "$dir" ]] || continue
-  emoji=$(detect_emoji "$dir")
-  name=$(basename "$dir")
-  git=$(git_info "$dir")
-  
-  # store: path|display
-  projects+=("${dir}|${emoji}  ${name}${git}")
-done < <(fd --type d --follow --max-depth 2 --base-directory "$ROOT" --absolute-path | sort)
+project_display() {
+  local dir="$1"
+  printf '%s  %s%s  —  %s' \
+    "$(project_emoji "$dir")" \
+    "$(basename "$dir")" \
+    "$(project_branch "$dir")" \
+    "$(pretty_path "$dir")"
+}
 
-# nothing found
-[[ ${#projects[@]} -eq 0 ]] && exit 0
+# ── Project discovery ─────────────────────────────────────────────────────────
+declare -a proj_displays=()
+declare -A display_to_path=()
 
-# build menu (just the display parts)
-menu=""
-for entry in "${projects[@]}"; do
-  display="${entry#*|}"
-  menu+="${display}"$'\n'
+build_project_list() {
+  proj_displays=()
+  display_to_path=()
+
+  local dir disp root
+  while IFS= read -r dir; do
+    [[ -d "$dir" ]] || continue
+    disp="$(project_display "$dir")"
+    proj_displays+=("$disp")
+    display_to_path["$disp"]="$dir"
+  done < <(
+    {
+      for root in "${ROOTS[@]}"; do
+        [[ -d "$root" ]] || continue
+        printf '%s\n' "$root"
+        fd --type d --max-depth 1 --absolute-path --follow . "$root"
+      done
+    } | awk '!seen[$0]++' | sort
+  )
+}
+
+# ── Project open/close ────────────────────────────────────────────────────────
+open_project() {
+  local proj="$1" name existing entry
+  local -a ids=()
+  local have_ws1=false have_ws3=false
+
+  ensure_kitty ws1
+  ensure_kitty ws3
+
+  name=$(basename "$proj")
+  existing=$(scan_win_ids "$proj")
+
+  for entry in $existing; do
+    ids+=("$entry")
+    [[ "$entry" == ws1:* ]] && have_ws1=true
+    [[ "$entry" == ws3:* ]] && have_ws3=true
+  done
+
+  if ! $have_ws3; then
+    local wid3
+    wid3=$(knew_tab ws3 "$name" "$proj" \
+      zsh -i -c "eval \"\$(direnv export zsh)\" && clear && $NVIM -c 'lua require(\"persistence\").load()'; exec zsh")
+    [[ -n "$wid3" ]] && ids+=("ws3:$wid3")
+  fi
+
+  if ! $have_ws1; then
+    local wid_c wid_z
+
+    wid_c=$(knew_tab ws1 "$name" "$proj" \
+      zsh -i -c "eval \"\$(direnv export zsh)\" && clear && $CLAUDE; exec zsh")
+
+    if [[ -n "$wid_c" ]]; then
+      ids+=("ws1:$wid_c")
+
+      apply_ws1_tall_by_window "$wid_c" || true
+      sleep 0.2
+
+      wid_z=$(ksplit ws1 "$wid_c" "$proj" \
+        zsh -i -c "eval \"\$(direnv export zsh)\" && clear; exec zsh")
+
+      [[ -n "$wid_z" ]] && ids+=("ws1:$wid_z")
+
+      apply_ws1_tall_by_window "$wid_c" || true
+    fi
+  fi
+
+  state_wins["$proj"]="${ids[*]+"${ids[*]}"}"
+  close_blank_tab ws1
+  close_blank_tab ws3
+}
+
+close_project() {
+  local proj="$1" wins="${state_wins[$proj]:-}" entry ws id
+
+  [[ -n "$wins" ]] || wins=$(scan_win_ids "$proj")
+
+  for entry in $wins; do
+    ws="${entry%%:*}"
+    id="${entry##*:}"
+    kitty_ready "$ws" || continue
+    krun "$ws" close-window --match "id:$id" >/dev/null 2>&1 || true
+  done
+
+  unset "state_wins[$proj]"
+}
+
+# ── Restore mode ──────────────────────────────────────────────────────────────
+if $RESTORE_MODE; then
+  [[ ${#previously_open[@]} -eq 0 ]] && exit 0
+
+  selected_paths=()
+  selected_set=()
+
+  for proj in "${!previously_open[@]}"; do
+    [[ -d "$proj" ]] || continue
+    add_selected "$proj"
+  done
+
+  for proj in "${selected_paths[@]+"${selected_paths[@]}"}"; do
+    open_project "$proj"
+  done
+
+  save_state
+  exit 0
+fi
+
+# ── Interactive mode ──────────────────────────────────────────────────────────
+for proj in "${!state_wins[@]}"; do
+  [[ -n "${state_wins[$proj]}" ]] && continue
+  found=$(scan_win_ids "$proj")
+  [[ -n "$found" ]] && state_wins["$proj"]="$found"
 done
 
-# show wofi menu
-choice=$(echo -n "$menu" | wofi --dmenu --prompt "Projects" --insensitive --width 700 --height 600)
+build_project_list
 
-# cancelled
-[[ -z "$choice" ]] && exit 0
-
-# find matching project path
-selected=""
-for entry in "${projects[@]}"; do
-  path="${entry%%|*}"
-  display="${entry#*|}"
-  if [[ "$display" == "$choice" ]]; then
-    selected="$path"
-    break
+for disp in "${proj_displays[@]+"${proj_displays[@]}"}"; do
+  path="${display_to_path[$disp]}"
+  if [[ -v previously_open["$path"] ]]; then
+    add_selected "$path"
   fi
 done
 
-[[ -z "$selected" ]] && { echo "invalid selection"; exit 1; }
+while true; do
+  menu=""
+  for disp in "${proj_displays[@]+"${proj_displays[@]}"}"; do
+    path="${display_to_path[$disp]}"
+    if [[ -v selected_set["$path"] ]]; then
+      menu+="✓ $disp"$'\n'
+    else
+      menu+="  $disp"$'\n'
+    fi
+  done
 
-# launch nvim in the selected project
-exec "$TERMINAL" -d $selected -e sh -c "exec direnv exec . $NVIM_CMD"
+  choice=$(
+    printf '%s' "$menu" \
+      | wofi --dmenu \
+          --prompt "Projects [${#selected_paths[@]} open]" \
+          --insensitive \
+          --width 850 \
+          --height 700
+  ) || exit 0
+
+  picked="${choice:2}"
+  path="${display_to_path[$picked]:-}"
+  [[ -n "$path" ]] || continue
+
+  if [[ -v selected_set["$path"] ]]; then
+    close_project "$path"
+    remove_selected "$path"
+    save_state
+  else
+    add_selected "$path"
+    open_project "$path"
+    save_state
+  fi
+done

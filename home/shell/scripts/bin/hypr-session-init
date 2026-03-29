@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+# Source .env first so vars are in scope for dbus-update
+set -a
+[ -f "$HOME/.config/.env" ] && source "$HOME/.config/.env"
+set +a
+
+# Push ALL vars (including those from .env) to systemd + D-Bus
+dbus-update-activation-environment --systemd --all
+
+# Restart the hyprland session target cleanly
+systemctl --user stop hyprland-session.target
+systemctl --user start hyprland-session.target
