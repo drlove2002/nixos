@@ -187,15 +187,23 @@ close_blank_tab() {
 }
 
 scan_win_ids() {
-  local proj="$1" result="" ws s ids
+  local proj="$1" result="" ws s ids real_proj
+
+  # Remove trailing slash for consistent matching
+  proj="${proj%/}"
+
+  # Resolve symlinks to get real path
+  real_proj=$(realpath "$proj" 2>/dev/null) || real_proj="$proj"
+
   for ws in ws1 ws3; do
     kitty_ready "$ws" || continue
     s=$(ksock "$ws")
+
     ids=$(
       kitty @ --to "$s" ls 2>/dev/null \
-        | jq -r --arg p "$proj" '
+        | jq -r --arg p "$proj" --arg rp "$real_proj" '
             .[].tabs[].windows[]
-            | select(any(.foreground_processes[]?; (.cwd? // "") | startswith($p)))
+            | select(any(.foreground_processes[]?; (.cwd? // "") | (startswith($p) or startswith($rp))))
             | .id
           ' 2>/dev/null \
         | sort -u \
@@ -334,15 +342,17 @@ open_project() {
 }
 
 close_project() {
-  local proj="$1" wins="${state_wins[$proj]:-}" entry ws id
+  local proj="$1" wins entry ws id s
 
-  [[ -n "$wins" ]] || wins=$(scan_win_ids "$proj")
+  # Always rescan instead of trusting stored IDs
+  wins=$(scan_win_ids "$proj")
 
   for entry in $wins; do
     ws="${entry%%:*}"
     id="${entry##*:}"
+    s=$(ksock "$ws")
     kitty_ready "$ws" || continue
-    krun "$ws" close-window --match "id:$id" >/dev/null 2>&1 || true
+    kitty @ --to "$s" close-window --match "id:$id" >/dev/null 2>&1 || true
   done
 
   unset "state_wins[$proj]"
@@ -369,20 +379,62 @@ if $RESTORE_MODE; then
 fi
 
 # ── Interactive mode ──────────────────────────────────────────────────────────
-for proj in "${!state_wins[@]}"; do
-  [[ -n "${state_wins[$proj]}" ]] && continue
-  found=$(scan_win_ids "$proj")
-  [[ -n "$found" ]] && state_wins["$proj"]="$found"
-done
-
 build_project_list
 
-for disp in "${proj_displays[@]+"${proj_displays[@]}"}"; do
-  path="${display_to_path[$disp]}"
-  if [[ -v previously_open["$path"] ]]; then
-    add_selected "$path"
+# Dynamically detect which projects are currently running (optimized)
+scan_tmp=$(mktemp)
+trap "rm -f '$scan_tmp'" EXIT
+
+# Fetch kitty window list once per workspace
+declare -A ws_data=()
+for ws in ws1 ws3; do
+  if kitty_ready "$ws"; then
+    s=$(ksock "$ws")
+    ws_data["$ws"]=$(kitty @ --to "$s" ls 2>/dev/null)
   fi
 done
+
+# Check all projects against cached data in parallel
+for disp in "${proj_displays[@]+"${proj_displays[@]}"}"; do
+  path="${display_to_path[$disp]}"
+  (
+    # Resolve symlinks
+    real_path=$(realpath "$path" 2>/dev/null) || real_path="$path"
+    path_normalized="${path%/}"
+    real_path_normalized="${real_path%/}"
+
+    result=""
+    for ws in ws1 ws3; do
+      [[ -v ws_data["$ws"] ]] || continue
+
+      ids=$(
+        echo "${ws_data[$ws]}" \
+          | jq -r --arg p "$path_normalized" --arg rp "$real_path_normalized" '
+              .[].tabs[].windows[]
+              | select(any(.foreground_processes[]?; (.cwd? // "") | (startswith($p) or startswith($rp))))
+              | .id
+            ' 2>/dev/null \
+          | sort -u \
+          | while read -r id; do
+              [[ -n "$id" ]] && printf '%s:%s\n' "$ws" "$id"
+            done
+      ) || true
+      [[ -n "$ids" ]] && result+="$ids"$'\n'
+    done
+
+    result=$(printf '%s' "$result" | awk 'NF' | paste -sd' ' -)
+    [[ -n "$result" ]] && printf '%s\t%s\n' "$path" "$result"
+  ) >> "$scan_tmp" &
+done
+
+wait
+
+# Process results
+while IFS=$'\t' read -r path found; do
+  [[ -n "$path" && -n "$found" ]] || continue
+  add_selected "$path"
+  state_wins["$path"]="$found"
+done < "$scan_tmp"
 
 while true; do
   menu=""
@@ -404,6 +456,9 @@ while true; do
           --height 700
   ) || exit 0
 
+  # Handle empty choice (user cancelled)
+  [[ -n "$choice" ]] || exit 0
+
   picked="${choice:2}"
   path="${display_to_path[$picked]:-}"
   [[ -n "$path" ]] || continue
@@ -413,8 +468,13 @@ while true; do
     remove_selected "$path"
     save_state
   else
-    add_selected "$path"
     open_project "$path"
+    # After opening, check if windows were actually created
+    found=$(scan_win_ids "$path")
+    if [[ -n "$found" ]]; then
+      add_selected "$path"
+      state_wins["$path"]="$found"
+    fi
     save_state
   fi
 done
