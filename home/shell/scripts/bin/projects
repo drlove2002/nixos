@@ -11,10 +11,10 @@ ROOTS=(
 )
 
 NVIM="${NVIM_CMD:-nvim}"
-CLAUDE="$(which claude)"
+AGENT="$(which codex)"
 STATE="${HOME}/.local/state/project-launcher/open-projects"
 
-WS1="${KITTY_WS1:-unix:/tmp/kitty-ws1}"   # claude + terminal split, tall layout
+WS1="${KITTY_WS1:-unix:/tmp/kitty-ws1}"   # agent + terminal split, tall layout
 WS3="${KITTY_WS3:-unix:/tmp/kitty-ws3}"   # nvim
 
 RESTORE_MODE=false
@@ -23,7 +23,7 @@ RESTORE_MODE=false
 mkdir -p "$(dirname "$STATE")"
 
 # ── Guards ────────────────────────────────────────────────────────────────────
-[[ -x "$CLAUDE" ]]             || { echo "claude not found: $CLAUDE" >&2; exit 1; }
+[[ -x "$AGENT" ]]             || { echo "agent not found: $AGENT" >&2; exit 1; }
 command -v kitty   &>/dev/null || { echo "kitty not found" >&2; exit 1; }
 command -v jq      &>/dev/null || { echo "jq not found" >&2; exit 1; }
 command -v hyprctl &>/dev/null || { echo "hyprctl not found" >&2; exit 1; }
@@ -300,6 +300,52 @@ open_project() {
   ensure_kitty ws3
 
   name=$(basename "$proj")
+
+  if [[ "$name" == "worldwide" ]]; then
+    local sub_proj sub
+    for sub in wwapi wwbot wwideas wwpage; do
+      sub_proj="$proj/$sub"
+      if [[ -v state_wins["$sub_proj"] ]]; then
+        close_project "$sub_proj"
+        remove_selected "$sub_proj"
+      fi
+    done
+
+    existing=$(scan_win_ids "$proj")
+    for entry in $existing; do
+      ids+=("$entry")
+      [[ "$entry" == ws1:* ]] && have_ws1=true
+      [[ "$entry" == ws3:* ]] && have_ws3=true
+    done
+
+    if ! $have_ws3; then
+      for sub in wwapi wwbot wwideas wwpage; do
+        local wid3
+        wid3=$(knew_tab ws3 "$sub" "$proj/$sub" \
+          zsh -i -c "eval \"\$(direnv export zsh)\" && clear && $NVIM -c 'lua require(\"persistence\").load()'; exec zsh")
+        [[ -n "$wid3" ]] && ids+=("ws3:$wid3")
+      done
+    fi
+
+    if ! $have_ws1; then
+      local wid_c
+      wid_c=$(knew_tab ws1 "worldwide-agent" "$proj" \
+        zsh -i -c "eval \"\$(direnv export zsh)\" && clear && $AGENT; exec zsh")
+      [[ -n "$wid_c" ]] && ids+=("ws1:$wid_c")
+
+      for sub in wwapi wwbot wwideas wwpage; do
+        local wid_z
+        wid_z=$(knew_tab ws1 "$sub-term" "$proj/$sub" \
+          zsh -i -c "eval \"\$(direnv export zsh)\" && clear; exec zsh")
+        [[ -n "$wid_z" ]] && ids+=("ws1:$wid_z")
+      done
+    fi
+
+    state_wins["$proj"]="${ids[*]+"${ids[*]}"}"
+    close_blank_tab ws1
+    close_blank_tab ws3
+    return
+  fi
   existing=$(scan_win_ids "$proj")
 
   for entry in $existing; do
@@ -319,7 +365,7 @@ open_project() {
     local wid_c wid_z
 
     wid_c=$(knew_tab ws1 "$name" "$proj" \
-      zsh -i -c "eval \"\$(direnv export zsh)\" && clear && $CLAUDE; exec zsh")
+      zsh -i -c "eval \"\$(direnv export zsh)\" && clear && $AGENT; exec zsh")
 
     if [[ -n "$wid_c" ]]; then
       ids+=("ws1:$wid_c")

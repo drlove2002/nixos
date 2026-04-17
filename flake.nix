@@ -3,10 +3,7 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     nur.url = "github:nix-community/NUR";
-    nix-index-database = {
-      url = "github:nix-community/nix-index-database";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    nix-index-database.url = "github:nix-community/nix-index-database";
     home-manager.url = "github:nix-community/home-manager/release-25.11";
     lanzaboote.url = "github:nix-community/lanzaboote/v1.0.0";
 
@@ -16,7 +13,9 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
     nixcord.url = "github:kaylorben/nixcord";
-    claude-code.url = "github:sadjow/claude-code-nix";
+    opencode.url = "github:anomalyco/opencode";
+    codex-cli-nix.url = "github:sadjow/codex-cli-nix";
+    ngrok.url = "github:ngrok/ngrok-nix";
     hyprland.url = "github:hyprwm/Hyprland";
     quickshell.url = "git+https://git.outfoxxed.me/outfoxxed/quickshell";
     spicetify-nix.url = "github:Gerg-L/spicetify-nix";

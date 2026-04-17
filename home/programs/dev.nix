@@ -1,4 +1,8 @@
-{pkgs, ...}: {
+{
+  inputs,
+  pkgs,
+  ...
+}: {
   home.packages = with pkgs; [
     gcc
     gdb
@@ -27,7 +31,13 @@
     taplo
     vtsls
     yaml-language-server
+    fzf
+    rsync
+    google-cloud-sdk
 
-    claude-code
+    inputs.codex-cli-nix.packages.${stdenv.hostPlatform.system}.default
+    inputs.opencode.packages.${stdenv.hostPlatform.system}.default
+
+    ngrok
   ];
 }

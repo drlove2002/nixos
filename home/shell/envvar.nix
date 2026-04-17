@@ -14,5 +14,8 @@
     LC_ALL = "C.UTF-8";
     NIXOS_CONFIG_DIR = "${config.xdg.configHome}/nixos";
     MPLBACKEND = "TkAgg";
+    RAG_HOME = "${config.xdg.configHome}/ai/rag";
+    RAG_PYTHON = "${config.xdg.configHome}/ai/rag/venv/bin/python";
+    RAG_APP = "${config.xdg.configHome}/ai/rag/app/main.py";
   };
 }

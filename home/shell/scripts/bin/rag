@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+RAG_HOME="${RAG_HOME:-${XDG_CONFIG_HOME:-$HOME/.config}/ai/rag}"
+RAG_PYTHON="${RAG_PYTHON:-$RAG_HOME/venv/bin/python}"
+RAG_APP="${RAG_APP:-$RAG_HOME/app/main.py}"
+DEFAULT_BOOTSTRAP_ROOT="${RAG_BOOTSTRAP_ROOT:-/data/Projects}"
+
+usage() {
+  cat <<'EOF'
+Usage:
+  rag bootstrap [path]
+  rag index-all
+  rag index-here
+  rag index-path [path]
+  rag query <text>
+  rag stats
+
+Environment:
+  RAG_HOME            Override the RAG app root
+  RAG_PYTHON          Override the Python interpreter
+  RAG_APP             Override the CLI entrypoint
+  RAG_BOOTSTRAP_ROOT  Default path for `rag bootstrap`
+EOF
+}
+
+require_rag() {
+  [[ -x "$RAG_PYTHON" ]] || {
+    echo "RAG python not found: $RAG_PYTHON" >&2
+    exit 1
+  }
+  [[ -f "$RAG_APP" ]] || {
+    echo "RAG app not found: $RAG_APP" >&2
+    exit 1
+  }
+}
+
+run_rag() {
+  require_rag
+  "$RAG_PYTHON" "$RAG_APP" "$@"
+}
+
+cmd="${1:-}"
+shift || true
+
+case "$cmd" in
+  bootstrap)
+    path="${1:-$DEFAULT_BOOTSTRAP_ROOT}"
+    echo "Bootstrapping workspaces from: $path"
+    run_rag bootstrap "$path"
+    echo "Indexing all registered workspaces..."
+    run_rag index-all
+    ;;
+  index-all)
+    echo "Indexing all registered workspaces..."
+    run_rag index-all
+    ;;
+  index-here)
+    echo "Indexing current workspace: $PWD"
+    run_rag index-path "$PWD"
+    ;;
+  index-path)
+    path="${1:-$PWD}"
+    echo "Indexing workspace: $path"
+    run_rag index-path "$path"
+    ;;
+  query)
+    [[ $# -gt 0 ]] || {
+      echo "Usage: rag query <text>" >&2
+      exit 1
+    }
+    run_rag query "$*"
+    ;;
+  stats)
+    run_rag stats
+    ;;
+  ""|-h|--help|help)
+    usage
+    ;;
+  *)
+    echo "Unknown subcommand: $cmd" >&2
+    echo >&2
+    usage >&2
+    exit 1
+    ;;
+esac

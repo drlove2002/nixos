@@ -8,6 +8,11 @@
         user = "ubuntu";
         identityFile = "~/.ssh/ww.pem";
       };
+      ww2 = {
+        hostname = "44.218.138.24";
+        user = "admin";
+        identityFile = "~/.ssh/ww2.pem";
+      };
       fact = {
         hostname = "16.112.107.158";
         user = "admin";
@@ -22,6 +27,11 @@
         hostname = "100.96.186.96";
         user = "love";
         identityFile = "~/.ssh/id_ed25519";
+      };
+      test = {
+        hostname = "3.233.125.107";
+        user = "admin";
+        identityFile = "~/.ssh/test.pem";
       };
     };
   };

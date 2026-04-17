@@ -1,5 +1,6 @@
 {username, ...}: {
   imports = [
+    ./dummy-options.nix
     ./programs
     ./shell
     ./desktop

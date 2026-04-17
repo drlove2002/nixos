@@ -1,7 +1,6 @@
+# AGENTS.md
 
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to AI coding agents working with code in this repository.
 
 ## What this is
 
@@ -11,10 +10,10 @@ A NixOS configuration using flakes, Home Manager (inline, not standalone), and S
 
 ```bash
 # Rebuild and switch (most common operation)
-nb                          # alias for: git add . && sudo nixos-rebuild switch --upgrade
+nb                          # alias for: sudo nixos-rebuild switch --flake ~/.config/nixos
 
-# Update all flake inputs then rebuild
-nbu                         # alias for: nix flake update && nb
+# Update all flake inputs and prepare a new boot generation
+nbu                         # helper script: update flake inputs, build, and install as next boot generation
 
 # Garbage collect old generations
 ngc                         # alias for: sudo nix-collect-garbage -d
@@ -59,6 +58,12 @@ assets/                 # wallpaper.jpg used by Stylix
 
 **Secrets/env vars:** Loaded at shell startup from `~/.config/.env` (not tracked in git).
 
+**Generic RAG tools:** Use `rag` for local RAG operations shared across agents. The canonical home is `~/.config/ai/rag`.
+- `rag query "<text>"` — search indexed workspaces
+- `rag index-here` — index the current repo
+- `rag index-path /path/to/repo` — index a specific repo
+- `rag index-all` — refresh all registered workspaces
+
 **Lanzaboote Secure Boot:** Replaces systemd-boot; uses `/var/lib/sbctl` for PKI. Don't enable `systemd-boot` directly.
 
 ## Flake inputs of note
@@ -67,6 +72,6 @@ assets/                 # wallpaper.jpg used by Stylix
 - `home-manager` — release-25.11 branch
 - `lanzaboote` — Secure Boot
 - `nixcord` — Discord/Vencord config via Home Manager
-- `claude-code` — Claude Code flake
+- `codex-cli-nix` — Codex CLI flake
 - `quickshell` — custom shell/bar (from outfoxxed's git)
 - `zen-browser`, `spicetify-nix`, `nix-vscode-extensions`, `hyprland`

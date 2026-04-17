@@ -2,8 +2,8 @@
   shellAliases = {
     ff = "fastfetch";
     c = "clear";
-    nb = "git add . && sudo nixos-rebuild switch --upgrade";
-    nbu = "nix flake update && nb";
+    nb = "sudo nixos-rebuild switch --flake ~/.config/nixos";
+    nbu = "~/.config/nixos/home/shell/scripts/bin/nbu";
     ngc = "sudo nix-collect-garbage -d";
     ne = "code ~/.config/nixos/";
     htop = "btop";

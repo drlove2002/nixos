@@ -1,9 +1,15 @@
 {
   pkgs,
   config,
+  lib,
   ...
 }: {
-  stylix = {
+  options.services.displayManager.generic = lib.mkOption {
+    type = lib.types.attrsOf lib.types.anything;
+    default = {};
+  };
+
+  config.stylix = {
     base16Scheme = "${pkgs.base16-schemes}/share/themes/kanagawa.yaml";
     enable = true;
     autoEnable = true;
