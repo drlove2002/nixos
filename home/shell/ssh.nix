@@ -13,11 +13,6 @@
         user = "admin";
         identityFile = "~/.ssh/ww2.pem";
       };
-      fact = {
-        hostname = "16.112.107.158";
-        user = "admin";
-        identityFile = "~/.ssh/factorio.pem";
-      };
       az = {
         hostname = "20.219.230.10";
         user = "azure";
