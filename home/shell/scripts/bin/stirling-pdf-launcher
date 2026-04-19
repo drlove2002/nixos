@@ -17,7 +17,8 @@ if [ ! -f "$CONFIG_DIR/connection.json" ]; then
   "setup_completed": true,
   "connection_mode": "self-hosted",
   "server_url": "$SERVER_URL",
-  "lock_connection_mode": false
+  "lock_connection_mode": false,
+  "login_mode": true
 }
 EOF
     echo "✓ Configuration created at $CONFIG_DIR/connection.json"

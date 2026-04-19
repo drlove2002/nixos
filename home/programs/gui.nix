@@ -48,5 +48,6 @@
     connection_mode = "self-hosted";
     server_url = "http://localhost:38273";
     lock_connection_mode = false;
+    login_mode = true;
   };
 }
