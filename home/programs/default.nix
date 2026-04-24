@@ -1,5 +1,6 @@
 {
   imports = [
+    ./ai.nix
     ./gui.nix
     ./dev.nix
     ./nix.nix

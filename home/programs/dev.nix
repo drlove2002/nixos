@@ -35,9 +35,6 @@
     rsync
     google-cloud-sdk
 
-    inputs.codex-cli-nix.packages.${stdenv.hostPlatform.system}.default
-    inputs.opencode.packages.${stdenv.hostPlatform.system}.default
-
     ngrok
   ];
 }
