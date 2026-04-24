@@ -20,6 +20,4 @@
     # allow USB device to be forwarded
     spiceUSBRedirection.enable = true;
   };
-  # Spice protocol improves VM display and input responsiveness
-  services.spice-vdagentd.enable = true;
 }

@@ -11,7 +11,7 @@ ROOTS=(
 )
 
 NVIM="${NVIM_CMD:-nvim}"
-AGENT="$(which codex)"
+AGENT="$(command -v codex || true)"
 STATE="${HOME}/.local/state/project-launcher/open-projects"
 
 WS1="${KITTY_WS1:-unix:/tmp/kitty-ws1}"   # agent + terminal split, tall layout
@@ -23,10 +23,11 @@ RESTORE_MODE=false
 mkdir -p "$(dirname "$STATE")"
 
 # ── Guards ────────────────────────────────────────────────────────────────────
-[[ -x "$AGENT" ]]             || { echo "agent not found: $AGENT" >&2; exit 1; }
+[[ -n "$AGENT" && -x "$AGENT" ]] || { echo "agent not found: codex" >&2; exit 1; }
 command -v kitty   &>/dev/null || { echo "kitty not found" >&2; exit 1; }
 command -v jq      &>/dev/null || { echo "jq not found" >&2; exit 1; }
 command -v hyprctl &>/dev/null || { echo "hyprctl not found" >&2; exit 1; }
+command -v realpath &>/dev/null || { echo "realpath not found" >&2; exit 1; }
 
 if ! $RESTORE_MODE; then
   command -v wofi &>/dev/null || { echo "wofi not found" >&2; exit 1; }
@@ -40,7 +41,8 @@ if ! $RESTORE_MODE; then
 fi
 
 # ── State ─────────────────────────────────────────────────────────────────────
-declare -A state_wins=() previously_open=()
+declare -A state_wins=()
+declare -A previously_open=()
 declare -A selected_set=()
 declare -a selected_paths=()
 
@@ -112,16 +114,6 @@ ensure_ws1_layout_defaults() {
   krun ws1 set-enabled-layouts --match all --configured tall >/dev/null 2>&1 || true
 }
 
-apply_ws1_tall_by_window() {
-  local wid="$1" i
-  [[ -n "$wid" ]] || return 1
-  for i in {1..12}; do
-    krun ws1 set-window-layout --match "window_id:$wid" tall >/dev/null 2>&1 && return 0
-    sleep 0.1
-  done
-  return 1
-}
-
 ensure_kitty() {
   local ws="$1" sock sock_path ws_num pid addr i
   sock=$(ksock "$ws")
@@ -189,10 +181,7 @@ close_blank_tab() {
 scan_win_ids() {
   local proj="$1" result="" ws s ids real_proj
 
-  # Remove trailing slash for consistent matching
   proj="${proj%/}"
-
-  # Resolve symlinks to get real path
   real_proj=$(realpath "$proj" 2>/dev/null) || real_proj="$proj"
 
   for ws in ws1 ws3; do
@@ -213,6 +202,7 @@ scan_win_ids() {
     ) || true
     [[ -n "$ids" ]] && result+="$ids"$'\n'
   done
+
   printf '%s' "$result" | awk 'NF' | paste -sd' ' -
 }
 
@@ -243,8 +233,12 @@ project_branch() {
     git -C "$dir" symbolic-ref --short HEAD 2>/dev/null \
       || git -C "$dir" rev-parse --short HEAD 2>/dev/null
   ) || return 0
-  [[ -n "$(git -C "$dir" status --porcelain 2>/dev/null)" ]] \
-    && echo "  (${b}*)" || echo "  (${b})"
+
+  if [[ -n "$(git -C "$dir" status --porcelain 2>/dev/null)" ]]; then
+    echo "  (${b}*)"
+  else
+    echo "  (${b})"
+  fi
 }
 
 pretty_path() {
@@ -290,6 +284,25 @@ build_project_list() {
   )
 }
 
+# ── Launch command helpers ────────────────────────────────────────────────────
+agent_cmd() {
+  cat <<EOF
+zsh -i -c 'eval "\$(direnv export zsh)" && clear && exec "$AGENT"'
+EOF
+}
+
+shell_cmd() {
+  cat <<'EOF'
+zsh -i -c 'eval "$(direnv export zsh)" && clear && exec zsh'
+EOF
+}
+
+nvim_cmd() {
+  cat <<EOF
+zsh -i -c 'eval "\$(direnv export zsh)" && clear && exec "$NVIM" -c "lua require(\"persistence\").load()"'
+EOF
+}
+
 # ── Project open/close ────────────────────────────────────────────────────────
 open_project() {
   local proj="$1" name existing entry
@@ -321,22 +334,19 @@ open_project() {
     if ! $have_ws3; then
       for sub in wwapi wwbot wwideas wwpage; do
         local wid3
-        wid3=$(knew_tab ws3 "$sub" "$proj/$sub" \
-          zsh -i -c "eval \"\$(direnv export zsh)\" && clear && $NVIM -c 'lua require(\"persistence\").load()'; exec zsh")
+        wid3=$(knew_tab ws3 "$sub" "$proj/$sub" sh -lc "$(nvim_cmd)")
         [[ -n "$wid3" ]] && ids+=("ws3:$wid3")
       done
     fi
 
     if ! $have_ws1; then
       local wid_c
-      wid_c=$(knew_tab ws1 "worldwide-agent" "$proj" \
-        zsh -i -c "eval \"\$(direnv export zsh)\" && clear && $AGENT; exec zsh")
+      wid_c=$(knew_tab ws1 "worldwide-agent" "$proj" sh -lc "$(agent_cmd)")
       [[ -n "$wid_c" ]] && ids+=("ws1:$wid_c")
 
       for sub in wwapi wwbot wwideas wwpage; do
         local wid_z
-        wid_z=$(knew_tab ws1 "$sub-term" "$proj/$sub" \
-          zsh -i -c "eval \"\$(direnv export zsh)\" && clear; exec zsh")
+        wid_z=$(knew_tab ws1 "$sub-term" "$proj/$sub" sh -lc "$(shell_cmd)")
         [[ -n "$wid_z" ]] && ids+=("ws1:$wid_z")
       done
     fi
@@ -346,8 +356,8 @@ open_project() {
     close_blank_tab ws3
     return
   fi
-  existing=$(scan_win_ids "$proj")
 
+  existing=$(scan_win_ids "$proj")
   for entry in $existing; do
     ids+=("$entry")
     [[ "$entry" == ws1:* ]] && have_ws1=true
@@ -356,29 +366,19 @@ open_project() {
 
   if ! $have_ws3; then
     local wid3
-    wid3=$(knew_tab ws3 "$name" "$proj" \
-      zsh -i -c "eval \"\$(direnv export zsh)\" && clear && $NVIM -c 'lua require(\"persistence\").load()'; exec zsh")
+    wid3=$(knew_tab ws3 "$name" "$proj" sh -lc "$(nvim_cmd)")
     [[ -n "$wid3" ]] && ids+=("ws3:$wid3")
   fi
 
   if ! $have_ws1; then
     local wid_c wid_z
 
-    wid_c=$(knew_tab ws1 "$name" "$proj" \
-      zsh -i -c "eval \"\$(direnv export zsh)\" && clear && $AGENT; exec zsh")
-
+    wid_c=$(knew_tab ws1 "$name" "$proj" sh -lc "$(agent_cmd)")
     if [[ -n "$wid_c" ]]; then
       ids+=("ws1:$wid_c")
 
-      apply_ws1_tall_by_window "$wid_c" || true
-      sleep 0.2
-
-      wid_z=$(ksplit ws1 "$wid_c" "$proj" \
-        zsh -i -c "eval \"\$(direnv export zsh)\" && clear; exec zsh")
-
+      wid_z=$(ksplit ws1 "$wid_c" "$proj" sh -lc "$(shell_cmd)")
       [[ -n "$wid_z" ]] && ids+=("ws1:$wid_z")
-
-      apply_ws1_tall_by_window "$wid_c" || true
     fi
   fi
 
@@ -390,7 +390,6 @@ open_project() {
 close_project() {
   local proj="$1" wins entry ws id s
 
-  # Always rescan instead of trusting stored IDs
   wins=$(scan_win_ids "$proj")
 
   for entry in $wins; do
@@ -427,24 +426,20 @@ fi
 # ── Interactive mode ──────────────────────────────────────────────────────────
 build_project_list
 
-# Dynamically detect which projects are currently running (optimized)
 scan_tmp=$(mktemp)
-trap "rm -f '$scan_tmp'" EXIT
+trap 'rm -f "$scan_tmp"' EXIT
 
-# Fetch kitty window list once per workspace
 declare -A ws_data=()
 for ws in ws1 ws3; do
   if kitty_ready "$ws"; then
     s=$(ksock "$ws")
-    ws_data["$ws"]=$(kitty @ --to "$s" ls 2>/dev/null)
+    ws_data["$ws"]="$(kitty @ --to "$s" ls 2>/dev/null)"
   fi
 done
 
-# Check all projects against cached data in parallel
 for disp in "${proj_displays[@]+"${proj_displays[@]}"}"; do
   path="${display_to_path[$disp]}"
   (
-    # Resolve symlinks
     real_path=$(realpath "$path" 2>/dev/null) || real_path="$path"
     path_normalized="${path%/}"
     real_path_normalized="${real_path%/}"
@@ -454,7 +449,7 @@ for disp in "${proj_displays[@]+"${proj_displays[@]}"}"; do
       [[ -v ws_data["$ws"] ]] || continue
 
       ids=$(
-        echo "${ws_data[$ws]}" \
+        printf '%s' "${ws_data[$ws]}" \
           | jq -r --arg p "$path_normalized" --arg rp "$real_path_normalized" '
               .[].tabs[].windows[]
               | select(any(.foreground_processes[]?; (.cwd? // "") | (startswith($p) or startswith($rp))))
@@ -465,6 +460,7 @@ for disp in "${proj_displays[@]+"${proj_displays[@]}"}"; do
               [[ -n "$id" ]] && printf '%s:%s\n' "$ws" "$id"
             done
       ) || true
+
       [[ -n "$ids" ]] && result+="$ids"$'\n'
     done
 
@@ -475,7 +471,6 @@ done
 
 wait
 
-# Process results
 while IFS=$'\t' read -r path found; do
   [[ -n "$path" && -n "$found" ]] || continue
   add_selected "$path"
@@ -502,7 +497,6 @@ while true; do
           --height 700
   ) || exit 0
 
-  # Handle empty choice (user cancelled)
   [[ -n "$choice" ]] || exit 0
 
   picked="${choice:2}"
@@ -515,7 +509,6 @@ while true; do
     save_state
   else
     open_project "$path"
-    # After opening, check if windows were actually created
     found=$(scan_win_ids "$path")
     if [[ -n "$found" ]]; then
       add_selected "$path"

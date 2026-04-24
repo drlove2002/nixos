@@ -265,7 +265,9 @@ in {
       address = ["/nixos/${lanIp}" "/nixos.local/${lanIp}"];
       server = ["8.8.8.8" "1.1.1.1"];
       interface = ["enp3s0" "lo"];
-      bind-interfaces = true;
+      # Bind dynamically so dnsmasq survives boot ordering while still
+      # listening only on the intended LAN and loopback interfaces.
+      bind-dynamic = true;
     };
   };
 

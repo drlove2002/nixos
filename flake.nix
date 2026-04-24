@@ -13,7 +13,8 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
     nixcord.url = "github:kaylorben/nixcord";
-    opencode.url = "github:anomalyco/opencode";
+    # Latest upstream currently fails to build in Nix; keep opencode pinned until fixed.
+    opencode.url = "github:anomalyco/opencode/v1.4.11";
     codex-cli-nix.url = "github:sadjow/codex-cli-nix";
     ngrok.url = "github:ngrok/ngrok-nix";
     hyprland.url = "github:hyprwm/Hyprland";
