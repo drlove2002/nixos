@@ -8,7 +8,7 @@ pccontrol on
 sleep 0.1
 # Turn off all RGB lighting
 openrgb -s /tmp/cmatrix-rgb.orp 2>/dev/null
-openrgb --mode off 2>/dev/null
+openrgb -c 000000 2>/dev/null
 
 # Dim via DDC/CI
 

@@ -5,7 +5,7 @@
 
 # Save RGB state and turn off all lights
 openrgb -s /tmp/cmatrix-rgb.orp 2>/dev/null
-openrgb --mode off 2>/dev/null
+openrgb -c 000000 2>/dev/null
 
 # Save current brightness and dim
 ddcutil getvcp 10 --brief 2>/dev/null | cut -d' ' -f4 > /tmp/cmatrix-brightness
