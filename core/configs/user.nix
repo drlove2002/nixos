@@ -9,6 +9,7 @@
       "render"
       "libvirtd"
       "kvm"
+      "i2c"
     ];
   };
 }

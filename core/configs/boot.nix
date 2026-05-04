@@ -24,6 +24,11 @@
       };
     };
     initrd.systemd.enable = true;
+
+    # Allow users in i2c group to access DDC/CI monitor control
+    kernelModules = [ "i2c-dev" ];
+
+
     # Keep the known-good 6.19.9 kernel from generation 425.
     kernelPackages = pkgs.linuxPackagesFor (pkgs.linuxKernel.kernels.linux_6_19.override {
       argsOverride = rec {
@@ -36,4 +41,9 @@
       };
     });
   };
+
+  # Allow users in i2c group to access DDC/CI monitor brightness
+  services.udev.extraRules = ''
+    KERNEL=="i2c-[0-9]*", GROUP="i2c", MODE="0660"
+  '';
 }

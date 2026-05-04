@@ -36,5 +36,7 @@
     google-cloud-sdk
 
     ngrok
+    cmatrix
+    ddcutil
   ];
 }
