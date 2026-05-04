@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Manual cmatrix screensaver — Super+Shift+C.
+# Stops hypridle, starts pccontrol (phone remote), dims screen, blocks sleep.
+
+systemctl --user stop hypridle.service
+pkill -f "kitty.*cmatrix-screensaver" 2>/dev/null
+pccontrol on
+sleep 0.1
+
+# Dim via DDC/CI
+ddcutil getvcp 10 --brief 2>/dev/null | cut -d' ' -f4 > /tmp/cmatrix-brightness
+ddcutil setvcp 10 5 2>/dev/null
+
+systemd-inhibit --what=sleep --who="cmatrix" --why="Screensaver active" --mode=block \
+  kitty \
+    --class cmatrix-screensaver \
+    --title cmatrix-screensaver \
+    -o background_opacity=1.0 \
+    -o background='#000000' \
+    -o window_padding_width=0 \
+    cmatrix -s -b -a -u 2 -C green
+
+# Stop pccontrol, restore brightness, restart hypridle
+pccontrol off
+VAL=$(cat /tmp/cmatrix-brightness 2>/dev/null || echo 50)
+ddcutil setvcp 10 "$VAL" 2>/dev/null
+rm -f /tmp/cmatrix-brightness
+systemctl --user start hypridle.service
