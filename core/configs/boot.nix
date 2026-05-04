@@ -6,6 +6,8 @@
   environment.systemPackages = [
     # For debugging and troubleshooting Secure Boot.
     pkgs.sbctl
+    pkgs.openrgb
+
   ];
   boot = {
     loader = {
@@ -45,4 +47,7 @@
   services.udev.extraRules = ''
     KERNEL=="i2c-[0-9]*", MODE="0666"
   '';
+
+  # OpenRGB udev rules for keyboard/motherboard RGB control
+  services.udev.packages = [ pkgs.openrgb ];
 }

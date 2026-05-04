@@ -6,21 +6,25 @@ systemctl --user stop hypridle.service
 pkill -f "kitty.*cmatrix-screensaver" 2>/dev/null
 pccontrol on
 sleep 0.1
+# Turn off all RGB lighting
+openrgb -s /tmp/cmatrix-rgb.orp 2>/dev/null
+openrgb --mode off 2>/dev/null
 
 # Dim via DDC/CI
+
 ddcutil getvcp 10 --brief 2>/dev/null | cut -d' ' -f4 > /tmp/cmatrix-brightness
-ddcutil setvcp 10 5 2>/dev/null
+ddcutil setvcp 10 0 2>/dev/null
 
 systemd-inhibit --what=sleep --who="cmatrix" --why="Screensaver active" --mode=block \
   kitty \
     --class cmatrix-screensaver \
     --title cmatrix-screensaver \
-    -o background_opacity=1.0 \
-    -o background='#000000' \
+    -o background_opacity=0.8 \
     -o window_padding_width=0 \
     cmatrix -s -b -a -u 2 -C green
 
-# Stop pccontrol, restore brightness, restart hypridle
+# Restore RGB, stop pccontrol, restore brightness, restart hypridle
+openrgb -p /tmp/cmatrix-rgb.orp 2>/dev/null; rm -f /tmp/cmatrix-rgb.orp
 pccontrol off
 VAL=$(cat /tmp/cmatrix-brightness 2>/dev/null || echo 50)
 ddcutil setvcp 10 "$VAL" 2>/dev/null
