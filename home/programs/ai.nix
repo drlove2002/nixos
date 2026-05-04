@@ -9,5 +9,8 @@ in {
     llmAgents.codex
     llmAgents.opencode
     llmAgents.pi
+    llmAgents.agent-browser
+    llmAgents.toon
+    pkgs.chromium
   ];
 }

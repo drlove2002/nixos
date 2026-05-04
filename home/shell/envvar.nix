@@ -17,5 +17,10 @@
     RAG_HOME = "${config.xdg.configHome}/ai/rag";
     RAG_PYTHON = "${config.xdg.configHome}/ai/rag/venv/bin/python";
     RAG_APP = "${config.xdg.configHome}/ai/rag/app/main.py";
+    AGENT_BROWSER_CONFIG = "${config.xdg.configHome}/ai/browser-config.json";
   };
+
+  home.sessionPath = [
+    "${config.home.homeDirectory}/.npm-global/bin"
+  ];
 }

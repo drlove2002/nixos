@@ -29,6 +29,7 @@ in {
     inherit shellAliases;
   };
   programs.bash = {
+    enable = true;
     inherit shellAliases;
   };
 }

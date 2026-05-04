@@ -11,7 +11,7 @@ ROOTS=(
 )
 
 NVIM="${NVIM_CMD:-nvim}"
-AGENT="$(command -v codex || true)"
+AGENT="$(command -v pi || true)"
 STATE="${HOME}/.local/state/project-launcher/open-projects"
 
 WS1="${KITTY_WS1:-unix:/tmp/kitty-ws1}"   # agent + terminal split, tall layout
