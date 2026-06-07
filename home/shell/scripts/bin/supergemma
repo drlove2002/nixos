@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+MODEL="${SUPERGEMMA_MODEL:-$HOME/.local/share/supergemma/supergemma4.gguf}"
+CLI="${LLAMA_CLI:-$(command -v llama-cli || true)}"
+THREADS="${SUPERGEMMA_THREADS:-$(nproc)}"
+CTX_SIZE="${SUPERGEMMA_CTX_SIZE:-4096}"
+BATCH_SIZE="${SUPERGEMMA_BATCH_SIZE:-2048}"
+UBATCH_SIZE="${SUPERGEMMA_UBATCH_SIZE:-512}"
+TEMPERATURE="${SUPERGEMMA_TEMPERATURE:-0.8}"
+TOP_P="${SUPERGEMMA_TOP_P:-0.9}"
+TOP_K="${SUPERGEMMA_TOP_K:-40}"
+REPEAT_PENALTY="${SUPERGEMMA_REPEAT_PENALTY:-1.1}"
+PREDICT="${SUPERGEMMA_PREDICT:-256}"
+REASONING="${SUPERGEMMA_REASONING:-off}"
+REASONING_BUDGET="${SUPERGEMMA_REASONING_BUDGET:--1}"
+SYSTEM_PROMPT="${SUPERGEMMA_SYSTEM_PROMPT:-You are a helpful assistant. Be concise.}"
+HISTORY_TURNS="${SUPERGEMMA_HISTORY_TURNS:-2}"
+# removed duplicate config lines
+
+if [[ -z "$CLI" ]]; then
+  echo "llama-cli not found in PATH" >&2
+  exit 1
+fi
+
+base_args=(
+  --model "$MODEL"
+  --ctx-size "$CTX_SIZE"
+  --threads "$THREADS"
+  --threads-batch "$THREADS"
+  --batch-size "$BATCH_SIZE"
+  --ubatch-size "$UBATCH_SIZE"
+  --temp "$TEMPERATURE"
+  --top-p "$TOP_P"
+  --top-k "$TOP_K"
+  --repeat-penalty "$REPEAT_PENALTY"
+  --reasoning "$REASONING"
+  --reasoning-budget "$REASONING_BUDGET"
+  --simple-io
+  --no-display-prompt
+  --log-disable
+  --single-turn
+  --system-prompt "$SYSTEM_PROMPT"
+  --n-predict "$PREDICT"
+)
+
+history=()
+
+build_prompt() {
+  local user_text="$1"
+  local start=0
+  local i
+  local prompt="$SYSTEM_PROMPT"
+
+  prompt+=$'\n\n'
+
+  if (( ${#history[@]} > 0 )); then
+    start=$(( ${#history[@]} - HISTORY_TURNS * 2 ))
+    (( start < 0 )) && start=0
+    for ((i=start; i<${#history[@]}; i+=2)); do
+      prompt+="User: ${history[i]}"
+      prompt+=$'\n'
+      prompt+="Assistant: ${history[i+1]}"
+      prompt+=$'\n\n'
+    done
+  fi
+
+  prompt+="User: ${user_text}"
+  prompt+=$'\n'
+  prompt+="Assistant:"
+  printf '%s' "$prompt"
+}
+
+run_turn() {
+  local user_text="$1"
+  local prompt out
+  prompt=$(build_prompt "$user_text")
+  out=$(mktemp)
+  "$CLI" "${base_args[@]}" -p "$prompt" </dev/null 2>/dev/null | tee "$out" | awk 'BEGIN{f=0} /^Assistant:$/ {f=1; next} f && /^\[ Prompt:/ {exit} f {print}'
+  RESPONSE=$(awk 'BEGIN{f=0} /^Assistant:$/ {f=1; next} f && /^\[ Prompt:/ {exit} f && /^Exiting/ {exit} f {print}' "$out")
+  rm -f "$out"
+}
+
+if [[ $# -gt 0 ]]; then
+  run_turn "$*"
+  exit 0
+fi
+
+
+
+while true; do
+  printf 'you> '
+  if ! IFS= read -r user_input; then
+    echo
+    break
+  fi
+
+  case "$user_input" in
+    "" )
+      continue
+      ;;
+    /exit|/quit)
+      break
+      ;;
+    /clear)
+      history=()
+      echo "history cleared"
+      continue
+      ;;
+  esac
+
+  run_turn "$user_input"
+  history+=("$user_input" "$RESPONSE")
+done

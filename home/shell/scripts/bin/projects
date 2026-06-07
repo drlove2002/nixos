@@ -8,14 +8,15 @@ set +a
 
 ROOTS=(
   "${HOME}/Projects"
+  "${HOME}/Projects/Univasitat"
 )
 
-NVIM="${NVIM_CMD:-nvim}"
+ZED="${ZED_CMD:-zeditor}"
 AGENT="$(command -v pi || true)"
 STATE="${HOME}/.local/state/project-launcher/open-projects"
 
 WS1="${KITTY_WS1:-unix:/tmp/kitty-ws1}"   # agent + terminal split, tall layout
-WS3="${KITTY_WS3:-unix:/tmp/kitty-ws3}"   # nvim
+WS3="${KITTY_WS3:-unix:/tmp/kitty-ws3}"   # zed launcher/editor tabs
 
 RESTORE_MODE=false
 [[ "${1:-}" == "--restore" ]] && RESTORE_MODE=true
@@ -23,8 +24,9 @@ RESTORE_MODE=false
 mkdir -p "$(dirname "$STATE")"
 
 # ── Guards ────────────────────────────────────────────────────────────────────
-[[ -n "$AGENT" && -x "$AGENT" ]] || { echo "agent not found: codex" >&2; exit 1; }
+[[ -n "$AGENT" && -x "$AGENT" ]] || { echo "agent not found" >&2; exit 1; }
 command -v kitty   &>/dev/null || { echo "kitty not found" >&2; exit 1; }
+command -v "$ZED"  &>/dev/null || { echo "zed not found: $ZED" >&2; exit 1; }
 command -v jq      &>/dev/null || { echo "jq not found" >&2; exit 1; }
 command -v hyprctl &>/dev/null || { echo "hyprctl not found" >&2; exit 1; }
 command -v realpath &>/dev/null || { echo "realpath not found" >&2; exit 1; }
@@ -270,6 +272,7 @@ build_project_list() {
   local dir disp root
   while IFS= read -r dir; do
     [[ -d "$dir" ]] || continue
+    git -C "$dir" rev-parse --is-inside-work-tree &>/dev/null || continue
     disp="$(project_display "$dir")"
     proj_displays+=("$disp")
     display_to_path["$disp"]="$dir"
@@ -277,7 +280,9 @@ build_project_list() {
     {
       for root in "${ROOTS[@]}"; do
         [[ -d "$root" ]] || continue
-        printf '%s\n' "$root"
+        if [[ "$root" == "${HOME}/Projects" ]]; then
+          printf '%s\n' "$root"
+        fi
         fd --type d --max-depth 1 --absolute-path --follow . "$root"
       done
     } | awk '!seen[$0]++' | sort
@@ -297,10 +302,15 @@ zsh -i -c 'eval "$(direnv export zsh)" && clear && exec zsh'
 EOF
 }
 
-nvim_cmd() {
-  cat <<EOF
-zsh -i -c 'eval "\$(direnv export zsh)" && clear && exec "$NVIM" -c "lua require(\"persistence\").load()"'
-EOF
+open_zed_project() {
+  local dir="$1"
+  local behavior="${2:---new}"
+
+  (
+    cd "$dir" || exit 1
+    eval "$(direnv export bash)"
+    nohup "$ZED" "$behavior" . >/dev/null 2>&1 &
+  )
 }
 
 # ── Project open/close ────────────────────────────────────────────────────────
@@ -310,7 +320,7 @@ open_project() {
   local have_ws1=false have_ws3=false
 
   ensure_kitty ws1
-  ensure_kitty ws3
+  # Zed is a GUI app. Do not launch it inside kitty; that only leaves empty tabs.
 
   name=$(basename "$proj")
 
@@ -330,13 +340,22 @@ open_project() {
       [[ "$entry" == ws1:* ]] && have_ws1=true
       [[ "$entry" == ws3:* ]] && have_ws3=true
     done
+    # Zed is not tracked through kitty. If the project terminals exist,
+    # treat the editor side as already launched to avoid duplicate Zed windows.
+    $have_ws1 && have_ws3=true
 
     if ! $have_ws3; then
+      local first_zed=true
       for sub in wwapi wwbot wwideas wwpage; do
-        local wid3
-        wid3=$(knew_tab ws3 "$sub" "$proj/$sub" sh -lc "$(nvim_cmd)")
-        [[ -n "$wid3" ]] && ids+=("ws3:$wid3")
+        if $first_zed; then
+          open_zed_project "$proj/$sub" --new
+          sleep 0.5
+          first_zed=false
+        else
+          open_zed_project "$proj/$sub" --add
+        fi
       done
+      have_ws3=true
     fi
 
     if ! $have_ws1; then
@@ -353,7 +372,7 @@ open_project() {
 
     state_wins["$proj"]="${ids[*]+"${ids[*]}"}"
     close_blank_tab ws1
-    close_blank_tab ws3
+    # No ws3 kitty tab exists for Zed.
     return
   fi
 
@@ -363,11 +382,13 @@ open_project() {
     [[ "$entry" == ws1:* ]] && have_ws1=true
     [[ "$entry" == ws3:* ]] && have_ws3=true
   done
+  # Zed is not tracked through kitty. If the project terminals exist,
+  # treat the editor side as already launched to avoid duplicate Zed windows.
+  $have_ws1 && have_ws3=true
 
   if ! $have_ws3; then
-    local wid3
-    wid3=$(knew_tab ws3 "$name" "$proj" sh -lc "$(nvim_cmd)")
-    [[ -n "$wid3" ]] && ids+=("ws3:$wid3")
+    open_zed_project "$proj" --new
+    have_ws3=true
   fi
 
   if ! $have_ws1; then
@@ -384,7 +405,7 @@ open_project() {
 
   state_wins["$proj"]="${ids[*]+"${ids[*]}"}"
   close_blank_tab ws1
-  close_blank_tab ws3
+  # No ws3 kitty tab exists for Zed.
 }
 
 close_project() {

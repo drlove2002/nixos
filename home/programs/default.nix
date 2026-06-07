@@ -1,6 +1,8 @@
 {
   imports = [
     ./ai.nix
+    ./ai-guardrails.nix
+    ./ai-docs.nix
     ./gui.nix
     ./dev.nix
     ./nix.nix
@@ -10,6 +12,7 @@
     ./neofetch.nix
     ./atuin.nix
     ./vscode
+    ./zed
     ./nvim
     ./browser
     ./gaming.nix

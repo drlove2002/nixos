@@ -9,9 +9,10 @@
     };
   };
 
-  # Prevent auto-start on boot
+  # Prevent auto-start on boot and add imagemagick for Compress PDF
   systemd.services.stirling-pdf = {
     wantedBy = pkgs.lib.mkForce [];
+    path = pkgs.lib.mkAfter [ pkgs.imagemagick ];
   };
 
   # Open firewall for local access

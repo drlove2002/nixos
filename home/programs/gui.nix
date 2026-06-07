@@ -1,7 +1,6 @@
 {pkgs, ...}: {
   home.packages = with pkgs; [
     qalculate-gtk
-    freetube
     gimp
     obsidian
     dbeaver-bin
@@ -16,6 +15,20 @@
     redisinsight
     unstable.stirling-pdf-desktop
   ];
+
+  # Force DBeaver to use the default GTK theme instead of Stylix.
+  xdg.desktopEntries.dbeaver = {
+    name = "dbeaver-ce";
+    genericName = "Universal Database Manager";
+    comment = "Universal Database Manager and SQL Client.";
+    exec = "env GTK_THEME=Adwaita NO_AT_BRIDGE=1 ${pkgs.dbeaver-bin}/bin/dbeaver %U";
+    icon = "dbeaver";
+    terminal = false;
+    categories = ["IDE" "Development"];
+    settings.StartupWMClass = "DBeaver";
+    startupNotify = true;
+    mimeType = ["application/sql"];
+  };
 
   # Hide the package's default desktop entries and create our custom launcher
   xdg.desktopEntries = {

@@ -34,6 +34,7 @@
     fzf
     rsync
     google-cloud-sdk
+    tokei
 
     ngrok
     cmatrix

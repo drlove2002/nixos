@@ -1,6 +1,7 @@
 {pkgs, ...}: {
   imports = [
     ./db.nix
+    ./ollama.nix
     ./warp.nix
     ./wayland.nix
     ./xserver.nix
