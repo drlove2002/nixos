@@ -272,7 +272,10 @@ build_project_list() {
   local dir disp root
   while IFS= read -r dir; do
     [[ -d "$dir" ]] || continue
-    git -C "$dir" rev-parse --is-inside-work-tree &>/dev/null || continue
+    # Keep multi-project containers like worldwide — they have open_project handlers
+    if [[ "$(basename "$dir")" != "worldwide" ]]; then
+      git -C "$dir" rev-parse --is-inside-work-tree &>/dev/null || continue
+    fi
     disp="$(project_display "$dir")"
     proj_displays+=("$disp")
     display_to_path["$disp"]="$dir"
@@ -285,7 +288,7 @@ build_project_list() {
         fi
         fd --type d --max-depth 1 --absolute-path --follow . "$root"
       done
-    } | awk '!seen[$0]++' | sort
+    } | grep -vxF "${HOME}/Projects/Univasitat" | sort
   )
 }
 

@@ -15,6 +15,8 @@
   ];
 in {
   wayland.windowManager.hyprland.systemd.enable = false;
+  services.gnome-keyring.enable = true;
+
   home.packages = with pkgs; [
     hyprpolkitagent
     hyprpaper
