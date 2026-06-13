@@ -30,8 +30,17 @@
     # DDC/CI monitor brightness control
     kernelModules = [ "i2c-dev" ];
 
-    # 6.12 LTS (nixos-25.11 default; 6.19 was EOL and removed)
-    kernelPackages = pkgs.linuxPackages;
+    # Pin to exactly 7.0.11 (prevents surprise bumps on flake update)
+    kernelPackages = pkgs.linuxPackagesFor (pkgs.linuxKernel.kernels.linux_7_0.override {
+      argsOverride = rec {
+        version = "7.0.11";
+        modDirVersion = "7.0.11";
+        src = pkgs.fetchurl {
+          url = "mirror://kernel/linux/kernel/v7.x/linux-7.0.11.tar.xz";
+          hash = "sha256-5WyDVt2gETamBBxu+DK9Dsmb0tNd/5eDKqXsEO0BQwQ=";
+        };
+      };
+    });
   };
 
   # Allow user access to i2c devices for DDC/CI monitor brightness
