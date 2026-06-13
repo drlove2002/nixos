@@ -4,9 +4,17 @@
   lib,
   ...
 }: {
-  options.services.displayManager.generic = lib.mkOption {
-    type = lib.types.attrsOf lib.types.anything;
-    default = {};
+  options = {
+    services.displayManager.generic = lib.mkOption {
+      type = lib.types.attrsOf lib.types.anything;
+      default = {};
+    };
+    # Stylix's kmscon module references services.kmscon.config, removed in nixos-25.11
+    services.kmscon.config = lib.mkOption {
+      type = lib.types.attrsOf lib.types.anything;
+      default = {};
+      internal = true;
+    };
   };
 
   config.stylix = {

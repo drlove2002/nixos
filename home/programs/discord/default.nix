@@ -12,7 +12,6 @@
       plugins = {
         betterGifAltText.enable = true;
         betterGifPicker.enable = true;
-        betterNotesBox.enable = true;
         betterSessions.enable = true;
         betterSettings.enable = true;
         callTimer.enable = true;
