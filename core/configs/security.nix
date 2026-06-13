@@ -9,6 +9,7 @@
 
     pam.services = {
       hyprlock = {};
+      sddm.enableGnomeKeyring = true;
     };
   };
 }

@@ -25,9 +25,4 @@
     config.lib.file.mkOutOfStoreSymlink "${config.xdg.configHome}/nixos/home/programs/zed/keymap.json"
   );
 
-  home.packages = [
-    (pkgs.writeShellScriptBin "zed" ''
-      exec ${pkgs.unstable.zed-editor}/bin/zeditor "$@"
-    '')
-  ];
 }
