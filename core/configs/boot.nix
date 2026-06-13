@@ -30,8 +30,8 @@
     # DDC/CI monitor brightness control
     kernelModules = [ "i2c-dev" ];
 
-    # Keep the known-good 6.19.9 kernel from generation 425.
-    kernelPackages = pkgs.linuxPackages_latest;
+    # 6.12 LTS (nixos-25.11 default; 6.19 was EOL and removed)
+    kernelPackages = pkgs.linuxPackages;
   };
 
   # Allow user access to i2c devices for DDC/CI monitor brightness
