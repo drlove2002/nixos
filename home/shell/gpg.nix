@@ -9,9 +9,7 @@
       enable = true;
       enableSshSupport = true;
       enableZshIntegration = true;
-      # pinentry is a collection of simple PIN or passphrase dialogs used for
-      # password entry
-      pinentry.package = pkgs.pinentry-qt;
+      pinentry.package = if pkgs.stdenv.hostPlatform.isDarwin then pkgs.pinentry-mac else pkgs.pinentry-qt;
     };
 
     ## We will put our keygrip here
