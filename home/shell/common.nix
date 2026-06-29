@@ -1,3 +1,3 @@
 {pkgs, ...}: {
-  home.packages = with pkgs; [ bat ];
+  home.packages = with pkgs; [ eza ];
 }
