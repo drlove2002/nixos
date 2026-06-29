@@ -16,6 +16,7 @@
     ./shell/starship.nix
     ./shell/btop.nix
     ./shell/scripts
+    ./shell/bat.nix
   ];
   home = {
     username = username;
