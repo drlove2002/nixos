@@ -14,6 +14,7 @@
     ./shell/kitty.nix
     ./shell/ssh.nix
     ./shell/starship.nix
+    ./shell/btop.nix
   ];
   home = {
     username = username;
