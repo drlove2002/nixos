@@ -9,11 +9,13 @@
       in {
         unstable = unstablePkgs;
 
-        # mesa/darwin.nix throws "driverLink not supported on darwin"
-        # because driverLink is meaningless on macOS. Override mesa
-        # to provide a stub so HM's darwin targets don't crash.
-        mesa = prev.mesa.overrideAttrs (old: {
-          driverLink = null;
+        # mesa/darwin.nix throws on darwin. Override to provide a stub.
+        mesa = (prev.mesa.override {
+          enablePatentEncumberedCodecs = false;
+        }).overrideAttrs (old: {
+          passthru = (old.passthru or {}) // {
+            driverLink = null;
+          };
         });
       }
     )
