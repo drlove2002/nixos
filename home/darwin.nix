@@ -1,15 +1,4 @@
-{ inputs, username, lib, config, ... }: {
-  # HM's darwin target modules evaluate config.home.packages to do
-  # font syncing, app linking, and app copying. This transitively
-  # pulls in mesa.driverLink which throws on darwin. Disable them.
-  disabledModules = [
-    "targets/darwin/copyapps.nix"
-    "targets/darwin/fonts.nix"
-    "targets/darwin/keybindings.nix"
-    "targets/darwin/linkapps.nix"
-    "targets/darwin/search.nix"
-  ];
-
+{ inputs, username, lib, ... }: {
   imports = [
     ./dummy-options.nix
     ./programs/shared.nix
