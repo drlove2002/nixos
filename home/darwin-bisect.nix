@@ -9,6 +9,7 @@
 
   imports = [
     ./dummy-options.nix
+    ./shell/aliases.nix
   ];
 
   home = {
