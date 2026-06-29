@@ -10,6 +10,7 @@
     ./dummy-options.nix
     ./shell/aliases.nix
     ./shell/common.nix
+    ./shell/envvar.nix
   ];
   home = {
     username = username;
