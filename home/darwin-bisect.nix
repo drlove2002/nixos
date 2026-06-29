@@ -31,6 +31,7 @@
     ./programs/browser
     ./programs/discord
     ./programs/spotify.nix
+    ./programs/zed
   ];
   home = {
     username = username;
