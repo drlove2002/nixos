@@ -12,6 +12,7 @@
   nixpkgs.config = {
     allowUnfree = true;
     allowUnsupportedSystem = true;
+    allowBroken = true;
   };
 
   home-manager.useGlobalPkgs = true;
