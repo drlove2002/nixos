@@ -12,6 +12,7 @@
     ./shell/common.nix
     ./shell/envvar.nix
     ./shell/kitty.nix
+    ./shell/ssh.nix
   ];
   home = {
     username = username;
