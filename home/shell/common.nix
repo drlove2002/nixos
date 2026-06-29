@@ -1,3 +1,3 @@
 {pkgs, ...}: {
-  home.packages = with pkgs; [ deadnix ];
+  home.packages = with pkgs; [ statix ];
 }
