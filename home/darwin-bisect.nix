@@ -17,6 +17,7 @@
     ./shell/btop.nix
     ./shell/scripts
     ./shell/bat.nix
+    ./shell/gpg.nix
   ];
   home = {
     username = username;
