@@ -9,6 +9,7 @@
   ];
 
   nixpkgs.hostPlatform = "aarch64-darwin";
+  nixpkgs.config.allowUnfree = true;
 
   home-manager.useGlobalPkgs = true;
   home-manager.useUserPackages = true;
