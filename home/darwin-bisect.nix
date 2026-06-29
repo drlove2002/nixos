@@ -30,6 +30,7 @@
     ./programs/gui.nix
     ./programs/browser
     ./programs/discord
+    ./programs/spotify.nix
   ];
   home = {
     username = username;
