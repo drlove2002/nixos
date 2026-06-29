@@ -1,7 +1,5 @@
 { inputs, username, lib, config, ... }: {
   disabledModules = [
-    "targets/darwin/linkapps.nix"
-    "targets/darwin/copyapps.nix"
   ];
 
   imports = [
