@@ -8,10 +8,6 @@
     ./../../core/overlay/darwin-unstable.nix
   ];
 
-  # HM's darwin fonts module evaluates all home.packages to find fonts,
-  # transitively pulling mesa.driverLink which throws on darwin.
-  disabledModules = [ "targets/darwin/fonts.nix" ];
-
   nixpkgs.hostPlatform = "aarch64-darwin";
   nixpkgs.config = {
     allowUnfree = true;

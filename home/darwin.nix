@@ -13,5 +13,10 @@
     stateVersion = "25.05";
   };
 
+  # HM's darwin target modules (fonts.nix, linkapps.nix, etc.) all
+  # evaluate config.home.packages which transitively pulls mesa.driverLink
+  # that throws on darwin. We don't need these on macOS — set to empty.
+  targets.darwin = lib.mkForce {};
+
   programs.home-manager.enable = true;
 }
