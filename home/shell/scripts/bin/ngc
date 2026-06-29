@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ "$(uname)" == "Darwin" ]]; then
+  exec nix-collect-garbage -d
+else
+  exec sudo nix-collect-garbage -d
+fi

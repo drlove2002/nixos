@@ -2,9 +2,9 @@
   shellAliases = {
     ff = "fastfetch";
     c = "clear";
-    nb = "sudo nixos-rebuild switch --flake ~/.config/nixos";
-    nbu = "~/.config/nixos/home/shell/scripts/bin/nbu";
-    ngc = "sudo nix-collect-garbage -d";
+    nb = "~/.local/bin/nb";
+    nbu = "~/.local/bin/nbu";
+    ngc = "~/.local/bin/ngc";
     ne = "code ~/.config/nixos/";
     htop = "btop";
     code = "codium";

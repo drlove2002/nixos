@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO="${HOME}/.config/nixos"
+
+cd "$REPO"
+
+dirty=false
+git diff --quiet --ignore-submodules -- flake.nix flake.lock || dirty=true
+git diff --cached --quiet --ignore-submodules -- flake.nix flake.lock || dirty=true
+
+if [[ "$dirty" == true ]]; then
+  echo "nbu needs flake.nix and flake.lock to be clean before updating every flake input." >&2
+  echo "It rewrites flake.lock and builds a new darwin generation." >&2
+  echo >&2
+  git status --short -- flake.nix flake.lock >&2
+  echo >&2
+  echo "Commit, stash, or discard changes in flake.nix/flake.lock first, then run nbu again." >&2
+  exit 1
+fi
+
+backup="$(mktemp /tmp/darwin-flake.lock.XXXXXX)"
+cp flake.lock "$backup"
+cleanup() {
+  rm -f "$backup"
+}
+trap cleanup EXIT
+
+echo "Updating all flake inputs..."
+nix flake update
+
+echo "Building updated darwin generation..."
+if ! darwin-rebuild build --flake "$REPO"; then
+  echo "Build failed. Restoring previous flake.lock..." >&2
+  cp "$backup" flake.lock
+  exit 1
+fi
+
+echo "Update complete. Run 'darwin-rebuild switch --flake $REPO' to activate."

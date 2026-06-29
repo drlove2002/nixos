@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ "$(uname)" == "Darwin" ]]; then
+  exec darwin-rebuild switch --flake ~/.config/nixos
+else
+  exec sudo nixos-rebuild switch --flake ~/.config/nixos
+fi

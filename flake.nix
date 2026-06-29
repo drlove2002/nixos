@@ -4,6 +4,8 @@
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     nur.url = "github:nix-community/NUR";
     nix-index-database.url = "github:nix-community/nix-index-database";
+    nix-darwin.url = "github:LnL7/nix-darwin/nix-darwin-25.11";
+    nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
     home-manager.url = "github:nix-community/home-manager/release-25.11";
     lanzaboote.url = "github:nix-community/lanzaboote/v1.0.0";
 
@@ -34,6 +36,11 @@
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
       specialArgs = {inherit inputs username;};
       modules = [./hosts/pc];
+    };
+
+    darwinConfigurations.macbook = inputs.nix-darwin.lib.darwinSystem {
+      specialArgs = {inherit inputs username;};
+      modules = [./hosts/macbook];
     };
   };
 }

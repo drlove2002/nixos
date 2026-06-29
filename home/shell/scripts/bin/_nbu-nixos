@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO="${HOME}/.config/nixos"
+
+cd "$REPO"
+
+dirty=false
+git diff --quiet --ignore-submodules -- flake.nix flake.lock || dirty=true
+git diff --cached --quiet --ignore-submodules -- flake.nix flake.lock || dirty=true
+
+if [[ "$dirty" == true ]]; then
+  echo "nbu needs flake.nix and flake.lock to be clean before updating every flake input." >&2
+  echo "It rewrites flake.lock and installs a new boot generation." >&2
+  echo >&2
+  git status --short -- flake.nix flake.lock >&2
+  echo >&2
+  echo "Commit, stash, or discard changes in flake.nix/flake.lock first, then run nbu again." >&2
+  exit 1
+fi
+
+backup="$(mktemp /tmp/nixos-flake.lock.XXXXXX)"
+cp flake.lock "$backup"
+cleanup() {
+  rm -f "$backup"
+}
+trap cleanup EXIT
+
+echo "Updating all flake inputs..."
+nix flake update
+
+previous_generation="$(
+  sudo nix-env --list-generations --profile /nix/var/nix/profiles/system \
+    | tail -n 1 \
+    | awk '{print $1}'
+)"
+
+echo "Building updated system and installing it as the next boot generation..."
+if ! sudo nixos-rebuild boot --flake "$REPO"; then
+  echo "Build failed. Restoring previous flake.lock..." >&2
+  cp "$backup" flake.lock
+  exit 1
+fi
+
+new_generation="$(
+  sudo nix-env --list-generations --profile /nix/var/nix/profiles/system \
+    | tail -n 1 \
+    | awk '{print $1}'
+)"
+
+echo "Update complete."
+echo "Previous generation: ${previous_generation}"
+echo "New generation: ${new_generation}"
+echo "Reboot to test the update. Your previous generation remains available in the boot menu."

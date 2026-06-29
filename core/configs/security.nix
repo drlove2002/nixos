@@ -8,8 +8,8 @@
     };
 
     pam.services = {
-      hyprlock = {};
-      sddm.enableGnomeKeyring = true;
+      hyprlock.enableGnomeKeyring = true;
+      login.enableGnomeKeyring = true;
     };
   };
 }

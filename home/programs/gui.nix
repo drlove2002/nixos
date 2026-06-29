@@ -1,5 +1,6 @@
 {pkgs, ...}: {
   home.packages = with pkgs; [
+    audacity
     qalculate-gtk
     gimp
     obsidian
