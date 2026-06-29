@@ -6,7 +6,11 @@
     "targets/darwin/linkapps.nix"
     "targets/darwin/copyapps.nix"
   ];
-  imports = [ ./dummy-options.nix ./shell/aliases.nix ];
+  imports = [
+    ./dummy-options.nix
+    ./shell/aliases.nix
+    ./shell/common.nix
+  ];
   home = {
     username = username;
     homeDirectory = lib.mkForce "/Users/${username}";
