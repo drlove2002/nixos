@@ -9,10 +9,9 @@
       in {
         unstable = unstablePkgs;
 
-        # mesa/darwin.nix:67 sets driverLink = throw "driverLink not
-        # supported on darwin". HM's targets/darwin/* modules evaluate
-        # all home.packages transitively, tripping this throw. Override
-        # the passthru to return null instead.
+        # mesa/darwin.nix:67 sets driverLink = throw "not supported".
+        # HM's darwin targets scan all home.packages transitively.
+        # Override the passthru via the final overlay to return null.
         mesa = prev.mesa.overrideAttrs (old: {
           passthru = (old.passthru or {}) // {
             driverLink = null;
