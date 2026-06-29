@@ -28,6 +28,11 @@
         user = "admin";
         identityFile = "~/.ssh/test.pem";
       };
+      mac = {
+        hostname = "192.168.1.117";
+        user = "sudiproy";
+        identityFile = "~/.ssh/id_ed25519";
+      };
     };
   };
 }
