@@ -20,6 +20,8 @@
     home = "/Users/sudiproy";
   };
 
+  users.knownUsers = [ "sudiproy" ];
+
   home-manager.useGlobalPkgs = true;
   home-manager.useUserPackages = true;
   home-manager.backupFileExtension = "hmbackup";
