@@ -1,5 +1,12 @@
-{ inputs, username, lib, ... }: {
-  disabledModules = [ "targets/darwin/fonts.nix" ];
+{ inputs, username, lib, config, ... }: {
+  # HM's darwin targets (fonts, linkapps, copyapps) all evaluate
+  # config.home.packages which transitively pulls mesa.driverLink
+  # that throws on darwin. Disable them all — not needed on macOS.
+  disabledModules = [
+    "targets/darwin/fonts.nix"
+    "targets/darwin/linkapps.nix"
+    "targets/darwin/copyapps.nix"
+  ];
 
   imports = [
     ./dummy-options.nix
