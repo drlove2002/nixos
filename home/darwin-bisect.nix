@@ -20,6 +20,7 @@
     ./shell/gpg.nix
     ./shell/zsh.nix
     ./desktop/shared.nix
+    ./programs/shared.nix
   ];
   home = {
     username = username;
