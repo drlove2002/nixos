@@ -19,6 +19,7 @@
     ./shell/bat.nix
     ./shell/gpg.nix
     ./shell/zsh.nix
+    ./desktop/shared.nix
   ];
   home = {
     username = username;
