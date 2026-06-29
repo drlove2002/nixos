@@ -1,4 +1,6 @@
 { inputs, username, lib, ... }: {
+  disabledModules = [ "targets/darwin/fonts.nix" ];
+
   imports = [
     ./dummy-options.nix
     ./programs/shared.nix
@@ -10,7 +12,6 @@
   home = {
     username = username;
     homeDirectory = lib.mkForce "/Users/${username}";
-
     stateVersion = "25.05";
   };
 
