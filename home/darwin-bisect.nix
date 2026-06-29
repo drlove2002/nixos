@@ -20,7 +20,13 @@
     ./shell/gpg.nix
     ./shell/zsh.nix
     ./desktop/shared.nix
-    ./programs/shared.nix
+    ./programs/ai-packages.nix
+    ./programs/nix.nix
+    ./programs/rust.nix
+    ./programs/git
+    ./programs/neofetch.nix
+    ./programs/atuin.nix
+    ./programs/dev.nix
   ];
   home = {
     username = username;
