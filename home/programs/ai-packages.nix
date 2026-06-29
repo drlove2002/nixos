@@ -11,6 +11,6 @@ in {
     llmAgents.pi
     llmAgents.agent-browser
     llmAgents.toon
-    pkgs.chromium
+    pkgs.unstable.chromium
   ];
 }
