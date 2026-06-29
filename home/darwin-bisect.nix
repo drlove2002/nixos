@@ -11,6 +11,7 @@
     ./shell/aliases.nix
     ./shell/common.nix
     ./shell/envvar.nix
+    ./shell/kitty.nix
   ];
   home = {
     username = username;
