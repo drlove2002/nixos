@@ -1,6 +1,5 @@
 { inputs, username, lib, config, ... }: {
   disabledModules = [
-    "targets/darwin/fonts.nix"
     "targets/darwin/linkapps.nix"
     "targets/darwin/copyapps.nix"
   ];
