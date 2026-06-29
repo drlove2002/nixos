@@ -13,6 +13,5 @@
     ./nvim
     ./browser
     ./spotify.nix
-    ./obs.nix
   ];
-}
+  # obs.nix — OBS Studio doesn't support aarch64-darwin

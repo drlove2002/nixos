@@ -1,19 +1,19 @@
-{pkgs, ...}: {
+{pkgs, lib, ...}: {
   home.packages = with pkgs; [
+    obsidian
+    mpv
+    qbittorrent-enhanced
+    (zathura.override
+      {plugins = with zathuraPkgs; [zathura_pdf_mupdf];})
+  ] ++ lib.optionals (!pkgs.stdenv.hostPlatform.isDarwin) [
     audacity
     qalculate-gtk
     gimp
-    obsidian
     dbeaver-bin
     gitkraken
-    mpv
-    qbittorrent-enhanced
     libreoffice-qt-fresh
-    (zathura.override
-      {plugins = with zathuraPkgs; [zathura_pdf_mupdf];})
     kdePackages.kdenlive
     (jetbrains.plugins.addPlugins jetbrains.pycharm ["ideavim"])
     redisinsight
     unstable.stirling-pdf-desktop
   ];
-}
