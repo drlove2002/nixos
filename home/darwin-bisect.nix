@@ -18,6 +18,7 @@
     ./shell/scripts
     ./shell/bat.nix
     ./shell/gpg.nix
+    ./shell/zsh.nix
   ];
   home = {
     username = username;
