@@ -18,6 +18,7 @@
   users.users.sudiproy = {
     name = "sudiproy";
     home = "/Users/sudiproy";
+    uid = 501;
   };
 
   users.knownUsers = [ "sudiproy" ];
