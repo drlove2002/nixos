@@ -21,6 +21,7 @@
   };
 
   home.sessionPath = [
+    "${config.home.homeDirectory}/.local/bin"
     "${config.home.homeDirectory}/.npm-global/bin"
   ];
 }
