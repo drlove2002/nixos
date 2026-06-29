@@ -7,9 +7,6 @@
     ./desktop/shared.nix
   ];
 
-  # Make nix-installed fonts (Iosevka) discoverable on macOS
-  fonts.fontconfig.enable = true;
-
   home = {
     username = username;
     homeDirectory = lib.mkForce "/Users/${username}"; # macOS prefix
