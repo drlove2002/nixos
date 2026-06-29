@@ -1,3 +1,3 @@
 {pkgs, ...}: {
-  home.packages = with pkgs; [ statix ];
+  home.packages = with pkgs; [ wl-clipboard ];
 }
