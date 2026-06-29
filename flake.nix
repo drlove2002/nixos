@@ -41,6 +41,7 @@
     darwinConfigurations.macbook = nix-darwin.lib.darwinSystem {
       specialArgs = {inherit inputs; username = "sudiproy";};
       modules = [
+        home-manager.darwinModules.home-manager
         ./hosts/macbook
       ];
     };

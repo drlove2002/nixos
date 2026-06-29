@@ -9,13 +9,10 @@
 
   home = {
     username = username;
-    homeDirectory = lib.mkForce "/Users/${username}"; # macOS prefix
+    homeDirectory = lib.mkForce "/Users/${username}";
 
-    stateVersion = "25.05"; # DO NOT CHANGE
+    stateVersion = "25.05";
   };
 
-  # No nixGL on macOS — OpenGL/Metal is native.
-
-  # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
 }
