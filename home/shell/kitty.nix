@@ -1,8 +1,10 @@
-{...}: {
+{pkgs, ...}: {
+  home.packages = [ pkgs.nerd-fonts.iosevka ];
   programs.kitty = {
     enable = true;
     settings = {
       font_family = "Iosevka Nerd Font";
+      font_size = 13;
       enable_audio_bell = false;
       shell = "zsh";
       cursor_trail = 3;
