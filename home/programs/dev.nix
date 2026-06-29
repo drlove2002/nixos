@@ -4,7 +4,6 @@
 }: {
   home.packages = with pkgs; [
     gcc
-    gdb
     gnumake
     cmake
     pkg-config
@@ -13,7 +12,6 @@
     alejandra
     markdownlint-cli2
 
-    nodePackages.npm
     nodePackages.pnpm
 
     python312
@@ -22,21 +20,19 @@
     pyright
 
     protobuf
-    texliveFull
-    texpresso
+    # texliveFull # TODO: huge, test separately
     lua-language-server
     marksman
-    neocmakelsp
     taplo
     vtsls
     yaml-language-server
     fzf
     rsync
-    google-cloud-sdk
+    # google-cloud-sdk # TODO: test separately
     tokei
 
     ngrok
-    cmatrix
-    ddcutil
+    # cmatrix # TODO: test separately
+    # ddcutil # monitor control, Linux-only
   ];
 }

@@ -11,6 +11,6 @@ in {
     llmAgents.pi
     llmAgents.agent-browser
     llmAgents.toon
-    pkgs.unstable.chromium
   ];
+  # chromium not in nix on aarch64-darwin — install via: brew install --cask google-chrome
 }
