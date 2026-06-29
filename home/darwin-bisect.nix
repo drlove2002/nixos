@@ -29,6 +29,7 @@
     ./programs/dev.nix
     ./programs/gui.nix
     ./programs/browser
+    ./programs/discord
   ];
   home = {
     username = username;
