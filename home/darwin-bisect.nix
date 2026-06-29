@@ -10,6 +10,7 @@
   imports = [
     ./dummy-options.nix
     ./shell/aliases.nix
+    ./shell/shared.nix
   ];
 
   home = {
