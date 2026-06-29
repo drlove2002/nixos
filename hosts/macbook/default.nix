@@ -29,5 +29,5 @@
   home-manager.extraSpecialArgs = {
     inherit inputs username;
   };
-  home-manager.users.${username} = import ./../../home/darwin.nix;
+  home-manager.users.${username} = import ./../../home/darwin-bisect.nix;
 }
