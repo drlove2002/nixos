@@ -9,7 +9,7 @@
       enable = true;
       enableSshSupport = true;
       enableZshIntegration = true;
-      pinentry.package = if pkgs.stdenv.hostPlatform.isDarwin then pkgs.pinentry-mac else pkgs.pinentry-qt;
+      pinentry.package = if pkgs.stdenv.hostPlatform.isDarwin then pkgs.pinentry_mac else pkgs.pinentry-qt;
     };
 
     ## We will put our keygrip here
