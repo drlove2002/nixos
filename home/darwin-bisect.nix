@@ -28,6 +28,7 @@
     ./programs/atuin.nix
     ./programs/dev.nix
     ./programs/gui.nix
+    ./programs/browser
   ];
   home = {
     username = username;
