@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+{pkgs, config, ...}: {
   home.packages = with pkgs; [
     audacity
     qalculate-gtk
@@ -49,7 +49,7 @@
       name = "Stirling PDF";
       genericName = "PDF Editor";
       comment = "Powerful PDF manipulation tool with auto-configured local server";
-      exec = "/home/love/.local/bin/stirling-pdf-launcher"; # Full path to bash wrapper
+      exec = "${config.home.homeDirectory}/.local/bin/stirling-pdf-launcher"; # Full path to bash wrapper
       icon = "stirling-pdf";
       terminal = false;
       categories = ["Office" "Utility"];

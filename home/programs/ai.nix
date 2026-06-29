@@ -4,17 +4,11 @@
   pkgs,
   ...
 }: let
-  llmAgents = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system};
   homeDir = config.home.homeDirectory;
   pocketTtsCli = "${homeDir}/.config/ai/extensions/pi-tts/bin/pocket-tts-cli";
 in {
-  home.packages = [
-    llmAgents.codex
-    llmAgents.opencode
-    llmAgents.pi
-    llmAgents.agent-browser
-    llmAgents.toon
-    pkgs.chromium
+  imports = [
+    ./ai-packages.nix
   ];
 
   systemd.user.services.pocket-tts = {

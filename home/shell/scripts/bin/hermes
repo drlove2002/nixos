@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 unset PYTHONPATH
 unset PYTHONHOME
-exec "/home/love/.hermes/hermes-agent/venv/bin/hermes" "$@"
+exec "$HOME/.hermes/hermes-agent/venv/bin/hermes" "$@"

@@ -30,7 +30,7 @@ in {
         set +a
       fi
 
-      export PNPM_HOME="/home/love/.local/share/pnpm"
+      export PNPM_HOME="${config.home.homeDirectory}/.local/share/pnpm"
       case ":$PATH:" in
         *":$PNPM_HOME:"*) ;;
         *) export PATH="$PNPM_HOME:$PATH" ;;

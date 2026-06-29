@@ -1,5 +1,4 @@
-{username, ...}: {
-  stylix.targets.zen-browser.profileNames = [username];
+{config, username, ...}: {
   xdg.mimeApps = let
     value = "zen-beta.desktop";
     associations = builtins.listToAttrs (

@@ -3,6 +3,9 @@
   lib,
   ...
 }: {
+  # Unlock sudo with Touch ID instead of password
+  security.pam.services.sudo_local.touchIdAuth = true;
+
   # macOS system defaults managed by nix-darwin
   system.defaults = {
     dock = {
@@ -30,6 +33,10 @@
       InitialKeyRepeat = 15;
       "com.apple.swipescrolldirection" = true;
     };
+
+    screensaver = {
+      askForPasswordDelay = 10;
+    };
   };
 
   # macOS-specific packages
@@ -44,6 +51,14 @@
       experimental-features = ["nix-command" "flakes"];
       trusted-users = ["@admin"];
     };
+
+    # Apple Silicon: enable both native and Rosetta-emulated Intel binaries
+    extraOptions = ''
+      extra-platforms = x86_64-darwin aarch64-darwin
+    '';
+
+    # NixOS VM as a remote builder for cross-compiling Linux binaries
+    linux-builder.enable = true;
   };
 
   # Used for backwards compatibility; read the changelog before changing.

@@ -1,22 +1,9 @@
 {
   imports = [
+    ./shared.nix
     ./ai.nix
     ./ai-guardrails.nix
     ./ai-docs.nix
-    ./gui.nix
-    ./dev.nix
-    ./nix.nix
-    ./rust.nix
-    ./git
-    ./discord
-    ./neofetch.nix
-    ./atuin.nix
-    ./vscode
-    ./zed
-    ./nvim
-    ./browser
     ./gaming.nix
-    ./spotify.nix
-    ./obs.nix
   ];
 }

@@ -18,5 +18,4 @@
       "${config.xdg.configHome}/nixos/home/programs/nvim/configs"
     );
   };
-  stylix.targets.neovim.enable = false;
 }

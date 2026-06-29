@@ -4,6 +4,8 @@
     ./programs
     ./shell
     ./desktop
+    ./programs/browser/stylix-targets.nix
+    ./programs/nvim/stylix-targets.nix
   ];
 
   # Home Manager

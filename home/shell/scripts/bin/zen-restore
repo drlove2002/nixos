@@ -1,14 +1,23 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-MOUNT="/data"
+MOUNT="${ZEN_BACKUP_MOUNT:-/data}"
 BACKUP="$MOUNT/backup"
 ARCHIVE="$BACKUP/zen.tar.zst"
 # Updated path after migration
 PROFILE="$HOME/.config/zen/love"
 
+# OS detection: use diskutil on macOS, findmnt on Linux
+_is_mounted() {
+  if [[ "$(uname)" == "Darwin" ]]; then
+    diskutil info "$1" >/dev/null 2>&1
+  else
+    findmnt --target "$1" >/dev/null 2>&1
+  fi
+}
+
 # Check drive is mounted
-if ! findmnt --target "$MOUNT" >/dev/null 2>&1; then
+if ! _is_mounted "$MOUNT"; then
   echo "Backup drive not mounted — cannot restore"
   exit 1
 fi

@@ -30,7 +30,7 @@
     };
   };
 
-  outputs = inputs @ {nixpkgs, ...}: let
+  outputs = inputs @ {nixpkgs, nix-darwin, home-manager, ...}: let
     username = "love";
   in {
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
@@ -38,9 +38,12 @@
       modules = [./hosts/pc];
     };
 
-    darwinConfigurations.macbook = inputs.nix-darwin.lib.darwinSystem {
-      specialArgs = {inherit inputs username;};
-      modules = [./hosts/macbook];
+    darwinConfigurations.macbook = nix-darwin.lib.darwinSystem {
+      specialArgs = {inherit inputs; username = "sudiproy";};
+      modules = [
+        home-manager.darwinModules.home-manager
+        ./hosts/macbook
+      ];
     };
   };
 }

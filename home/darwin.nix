@@ -1,16 +1,18 @@
-{ username, ... }: {
+{ inputs, username, lib, ... }: {
   imports = [
     ./dummy-options.nix
-    ./programs
+    ./programs/shared.nix
     ./shell/shared.nix
     ./shell/aliases.nix
     ./desktop/shared.nix
-    ./darwin/launchd.nix
   ];
+
+  # Make nix-installed fonts (Iosevka) discoverable on macOS
+  fonts.fontconfig.enable = true;
 
   home = {
     username = username;
-    homeDirectory = "/Users/${username}"; # macOS prefix
+    homeDirectory = lib.mkForce "/Users/${username}"; # macOS prefix
 
     stateVersion = "25.05"; # DO NOT CHANGE
   };
