@@ -1,8 +1,8 @@
-{inputs, ...}: {
+{inputs, pkgs, lib, ...}: {
   imports = [
     inputs.nixcord.homeModules.nixcord
   ];
-  programs.nixcord = {
+  programs.nixcord = lib.mkIf (!pkgs.stdenv.hostPlatform.isDarwin) {
     enable = true; # Enable Nixcord (It also installs Discord)
     vesktop.enable = true; # Vesktop
     quickCss = "";
@@ -35,4 +35,8 @@
       # ...
     };
   };
+
+  home.packages = lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
+    pkgs.discord
+  ];
 }
