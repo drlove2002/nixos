@@ -9,7 +9,6 @@
     ./discord
     ./neofetch.nix
     ./atuin.nix
-    ./vscode
     ./zed
     ./nvim
     ./browser

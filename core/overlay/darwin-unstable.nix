@@ -1,4 +1,4 @@
-# Minimal overlay: provides pkgs.unstable for shared HM modules (zed, vscodium)
+# Minimal overlay: provides pkgs.unstable for shared HM modules (zed)
 {inputs, ...}: {
   nixpkgs.overlays = [
     (
