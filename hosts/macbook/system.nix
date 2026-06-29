@@ -46,7 +46,7 @@
 
   # Nix daemon settings
   nix = {
-    enable = false; # nix-darwin manages nix differently
+    enable = true;
     settings = {
       experimental-features = ["nix-command" "flakes"];
       trusted-users = ["@admin"];
@@ -60,6 +60,8 @@
     # NixOS VM as a remote builder for cross-compiling Linux binaries
     linux-builder.enable = true;
   };
+
+  system.primaryUser = "sudiproy";
 
   # Used for backwards compatibility; read the changelog before changing.
   system.stateVersion = 6;

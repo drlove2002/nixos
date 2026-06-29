@@ -1,5 +1,4 @@
 {config, ...}: let
-  # XDG MIME types
   associations = {
     "audio/*" = ["mpv.desktop"];
     "video/*" = ["mpv.desktop"];

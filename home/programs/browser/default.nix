@@ -6,9 +6,9 @@
 }: {
   imports = [
     inputs.zen-browser.homeModules.beta
-    ./xdg.nix
     ./policies.nix
     ./settings.nix
+    ./xdg-nixos.nix
   ];
   programs.zen-browser = {
     enable = true;
