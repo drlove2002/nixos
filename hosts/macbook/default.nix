@@ -15,6 +15,11 @@
     allowBroken = true;
   };
 
+  users.users.sudiproy = {
+    name = "sudiproy";
+    home = "/Users/sudiproy";
+  };
+
   home-manager.useGlobalPkgs = true;
   home-manager.useUserPackages = true;
   home-manager.backupFileExtension = "hmbackup";
