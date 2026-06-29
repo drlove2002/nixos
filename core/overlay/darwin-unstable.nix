@@ -10,12 +10,13 @@
         unstable = unstablePkgs;
 
         # mesa/darwin.nix:67 sets driverLink = throw "not supported on darwin".
-        # But HM's targets/darwin/fonts.nix buildsEnv from all home.packages,
-        # transitively pulling libglvnd.driverLink. Override to a real path.
-        mesa = prev.mesa.overrideAttrs (old: {
-          passthru = (old.passthru or {}) // {
-            driverLink = prev.runCommand "driverLink-stub" {} "mkdir -p $out/lib";
-          };
+        # HM's targets/darwin/fonts.nix buildEnv scans all home.packages,
+        # transitively pulling mesa, which throws. Override to a dummy package.
+        mesa = let
+          dummy = prev.runCommand "driverLink-stub" {} "mkdir -p $out/lib";
+        in prev.mesa.overrideAttrs (old: {
+          passthru = (old.passthru or {}) // { inherit dummy driverLink; };
+          driverLink = dummy;
         });
       }
     )
