@@ -27,6 +27,7 @@
     ./programs/neofetch.nix
     ./programs/atuin.nix
     ./programs/dev.nix
+    ./programs/gui.nix
   ];
   home = {
     username = username;
