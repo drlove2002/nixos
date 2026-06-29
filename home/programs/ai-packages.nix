@@ -1,6 +1,7 @@
 {
   inputs,
   pkgs,
+  lib,
   ...
 }: let
   llmAgents = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system};
@@ -9,8 +10,9 @@ in {
     llmAgents.codex
     llmAgents.opencode
     llmAgents.pi
-    llmAgents.agent-browser
     llmAgents.toon
+  ] ++ lib.optionals (!pkgs.stdenv.hostPlatform.isDarwin) [
+    llmAgents.agent-browser
     pkgs.chromium
   ];
 }
