@@ -18,7 +18,7 @@
     finder = {
       AppleShowAllExtensions = true;
       ShowPathbar = true;
-      FXPreferredViewStyle = "Nlsv"; # list view
+      FXPreferredViewStyle = "Nlsv";
     };
 
     trackpad = {
@@ -39,37 +39,24 @@
     };
   };
 
-  # macOS-specific packages
   environment.systemPackages = with pkgs; [
-    mas # Mac App Store CLI
+    mas
   ];
 
-  # Nix daemon settings
   nix = {
     enable = true;
     settings = {
       experimental-features = ["nix-command" "flakes"];
       trusted-users = ["@admin"];
     };
-
-    # Apple Silicon: enable both native and Rosetta-emulated Intel binaries
     extraOptions = ''
       extra-platforms = x86_64-darwin aarch64-darwin
     '';
-
-    # NixOS VM as a remote builder for cross-compiling Linux binaries
     linux-builder.enable = true;
   };
 
   system.primaryUser = "sudiproy";
-
-  # Used for backwards compatibility; read the changelog before changing.
   system.stateVersion = 6;
-
-  # Apply new system defaults without logout/login cycle
-  system.activationScripts.postActivation.text = ''
-    /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
-  '';
 
   # Apply new system defaults without logout/login cycle
   system.activationScripts.postActivation.text = ''
