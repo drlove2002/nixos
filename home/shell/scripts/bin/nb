@@ -1,8 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if [ -f '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
+  . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
+fi
+
+# Locate darwin-rebuild regardless of PATH
+_darwin_rebuild() {
+  command -v darwin-rebuild 2>/dev/null || ls -t /nix/store/*-darwin-rebuild/bin/darwin-rebuild 2>/dev/null | head -1
+}
+
+DR="$(_darwin_rebuild)"
+
 if [[ "$(uname)" == "Darwin" ]]; then
-  exec darwin-rebuild switch --flake ~/.config/nixos
+  exec sudo "${DR}" switch --flake ~/.config/nixos#macbook
 else
   exec sudo nixos-rebuild switch --flake ~/.config/nixos
 fi
