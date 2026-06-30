@@ -58,6 +58,33 @@
   system.primaryUser = "sudiproy";
   system.stateVersion = 6;
 
+  # Symlink Home Manager .apps into /Applications so Launchpad/Finder index them
+  system.activationScripts.applications.text = ''
+    apps_dir="/Applications/Nix Apps"
+    hm_apps="/Users/sudiproy/.nix-profile/Applications"
+    rm -rf "$apps_dir"
+    mkdir -p "$apps_dir"
+    if [ -d "$hm_apps" ]; then
+      for app in "$hm_apps"/*.app; do
+        [ -d "$app" ] || continue
+        name="$(basename "$app")"
+        ln -sfn "$app" "$apps_dir/$name"
+      done
+    fi
+    # Also link into ~/Applications so open -a works
+    user_dir="/Users/sudiproy/Applications"
+    rm -rf "$user_dir"
+    mkdir -p "$user_dir"
+    if [ -d "$hm_apps" ]; then
+      for app in "$hm_apps"/*.app; do
+        [ -d "$app" ] || continue
+        name="$(basename "$app")"
+        ln -sfn "$app" "$user_dir/$name"
+      done
+    fi
+    chown -R sudiproy "$apps_dir" "$user_dir" 2>/dev/null || true
+  '';
+
   # Apply new system defaults without logout/login cycle
   system.activationScripts.postActivation.text = ''
     /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
