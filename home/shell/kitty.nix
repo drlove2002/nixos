@@ -13,7 +13,7 @@
       scrollback_lines = 10000;
       scrollback_pager_history_size = 10;
       mouse_hide_wait = 3.0;
-      hide_window_decorations = "yes";
+      hide_window_decorations = "no";
       notify_on_cmd_finish = "invisible 20";
 
       # Enable remote control for session management

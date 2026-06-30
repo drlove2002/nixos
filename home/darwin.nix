@@ -20,18 +20,22 @@
 
   programs.home-manager.enable = true;
 
-  # Symlink .app bundles into ~/Applications (flat, no subdir)
-  home.activation.linkApplications = ''
-    apps_dir="${config.home.homeDirectory}/Applications"
-    hm_apps="${config.home.path}/Applications"
-    rm -rf "$apps_dir"
-    mkdir -p "$apps_dir"
-    if [ -d "$hm_apps" ]; then
-      for app in "$hm_apps"/*.app; do
-        [ -e "$app" ] || continue
-        name="$(basename "$app")"
-        ln -sfn "$app" "$apps_dir/$name"
-      done
-    fi
-  '';
+  # Link .app bundles into ~/Applications (macOS Launchpad reads this)
+  home.activation.linkApps = {
+    after = ["linkGeneration"];
+    before = [];
+    data = ''
+      apps_dir="$HOME/Applications"
+      hm_apps="${config.home.path}/Applications"
+      rm -rf "$apps_dir"
+      mkdir -p "$apps_dir"
+      if [ -d "$hm_apps" ]; then
+        for app_dir in "$hm_apps"/*.app; do
+          [ -d "$app_dir" ] || continue
+          name="$(basename "$app_dir")"
+          ln -sfn "$app_dir" "$apps_dir/$name"
+        done
+      fi
+    '';
+  };
 }
