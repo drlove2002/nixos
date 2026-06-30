@@ -65,4 +65,9 @@
 
   # Used for backwards compatibility; read the changelog before changing.
   system.stateVersion = 6;
+
+  # Apply new system defaults without logout/login cycle
+  system.activationScripts.postUserActivation.text = ''
+    /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
+  '';
 }
