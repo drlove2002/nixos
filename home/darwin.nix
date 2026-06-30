@@ -21,7 +21,7 @@
   programs.home-manager.enable = true;
 
   # Symlink .app bundles into ~/Applications (flat, no subdir)
-  home.activation.linkApplications = lib.hm.dag.entryAfter ["linkGeneration"] ''
+  home.activation.linkApplications = ''
     apps_dir="${config.home.homeDirectory}/Applications"
     hm_apps="${config.home.path}/Applications"
     rm -rf "$apps_dir"

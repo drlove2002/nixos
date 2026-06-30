@@ -67,7 +67,7 @@
   system.stateVersion = 6;
 
   # Apply new system defaults without logout/login cycle
-  system.activationScripts.postUserActivation.text = ''
+  system.activationScripts.postActivation.text = ''
     /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
   '';
 }
