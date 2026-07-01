@@ -6,9 +6,9 @@
   ...
 }:
 let
-  macExtDir = "spicetify/Extensions";
+  isDarwin = pkgs.stdenv.hostPlatform.isDarwin;
 
-  # Fetch community extensions from GitHub (macOS only)
+  # Community extensions — fetched from GitHub with pinned hashes
   adblock = pkgs.fetchurl {
     url = "https://raw.githubusercontent.com/CharlieS1103/spicetify-extensions/main/adblock/adblock.js";
     hash = "sha256-Uj8afW1sAKUKkUwF88JQrD2U+PJf8q3bG+7IF0e8tpk=";
@@ -17,13 +17,31 @@ let
     url = "https://raw.githubusercontent.com/theRealPadster/spicetify-hide-podcasts/main/hidePodcasts.js";
     hash = "sha256-cn5aL5E39L536sg9I0oM6FjF1hjn/1YRam3vAXk/w/g=";
   };
+
+  # Single derivation bundling ALL extensions into one directory.
+  # Built-in extensions come from nixpkgs spicetify-cli, community ones from fetchurl.
+  # Everything resolves to nix-store paths — no brew or runtime path dependencies.
+  spiceExtensions = pkgs.runCommand "spicetify-extensions" {
+    inherit adblock hidePodcasts;
+  } ''
+    mkdir -p $out
+
+    # Built-in extensions — from the nixpkgs spicetify-cli package
+    cp "${pkgs.spicetify-cli}/libexec/Extensions/keyboardShortcut.js" "$out/"
+    cp "${pkgs.spicetify-cli}/libexec/Extensions/shuffle+.js" "$out/"
+
+    # Community extensions
+    cp "$adblock" "$out/adblock.js"
+    cp "$hidePodcasts" "$out/hidePodcasts.js"
+  '';
+
 in {
   imports = [
     inputs.spicetify-nix.homeManagerModules.default
   ];
 
   # Linux: spicetify-nix wraps the nix Spotify package
-  programs.spicetify = lib.mkIf pkgs.stdenv.hostPlatform.isLinux (let
+  programs.spicetify = lib.mkIf (!isDarwin) (let
     spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.stdenv.hostPlatform.system};
   in {
     enable = true;
@@ -44,41 +62,26 @@ in {
     ];
   });
 
-  # macOS: spotify via homebrew, extensions via home-manager files
-  home.file = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
-    "${macExtDir}/adblock.js".source = adblock;
-    "${macExtDir}/hidePodcasts.js".source = hidePodcasts;
+  # macOS: spotify via homebrew, extensions bundled above
+  home.packages = lib.mkIf isDarwin [ pkgs.spicetify-cli ];
+
+  home.file = lib.mkIf isDarwin {
+    "spicetify/Extensions".source = spiceExtensions;
   };
 
-  home.activation = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
+  home.activation = lib.mkIf isDarwin {
     applySpicetify = lib.hm.dag.entryAfter ["linkGeneration"] ''
       if ! command -v spicetify &>/dev/null; then
         echo "spicetify-cli not found — skipping spotify mod" >&2
         exit 0
       fi
 
-      SPICE_EXT="$HOME/.config/spicetify/Extensions"
-
-      # Community extensions from home-manager files are already symlinked.
-      # Built-in extensions ship with spicetify-cli — symlink them for
-      # a flat extension directory spicetify expects.
-      BUILTIN_EXT="$(brew --prefix spicetify-cli 2>/dev/null)/libexec/Extensions"
-      if [ -d "$BUILTIN_EXT" ]; then
-        for ext in keyboardShortcut.js shuffle+.js; do
-          if [ ! -L "$SPICE_EXT/$ext" ] && [ -f "$BUILTIN_EXT/$ext" ]; then
-            ln -sf "$BUILTIN_EXT/$ext" "$SPICE_EXT/$ext"
-          fi
-        done
-      fi
-
-      # Configure all extensions
       spicetify config extensions "adblock.js|hidePodcasts.js|keyboardShortcut.js|shuffle+.js" 2>/dev/null || true
 
-      # Backup if needed, then apply
       if spicetify backup apply 2>/dev/null; then
         # Spicetify patches break macOS code signing — re-sign ad-hoc
         xattr -cr /Applications/Spotify.app 2>/dev/null || true
-        sudo codesign --force --deep --sign - /Applications/Spotify.app 2>/dev/null || true
+        codesign --force --deep --sign - /Applications/Spotify.app 2>/dev/null || true
       else
         echo "spicetify backup/apply failed" >&2
       fi
