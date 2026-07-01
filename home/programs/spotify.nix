@@ -8,7 +8,18 @@
 let
   isDarwin = pkgs.stdenv.hostPlatform.isDarwin;
 
-  # Community extensions — fetched from GitHub with pinned hashes
+  # All extension files fetched from their sources with pinned hashes.
+  # Built-in extensions come from the spicetify/cli repo at a pinned tag,
+  # community extensions from their respective authors.
+
+  keyboardShortcut = pkgs.fetchurl {
+    url = "https://raw.githubusercontent.com/spicetify/cli/v2.42.1/Extensions/keyboardShortcut.js";
+    hash = "sha256-hQlJpCFF7Ju8ep4KcWRQ52ZO2SasF25jViUelh1HBO8=";
+  };
+  shuffle = pkgs.fetchurl {
+    url = "https://raw.githubusercontent.com/spicetify/cli/v2.42.1/Extensions/shuffle+.js";
+    hash = "sha256-3q/DI2tCs0gbRYOZjhFjzBFmn5/vtoNYA7YWNC1Zcj8=";
+  };
   adblock = pkgs.fetchurl {
     url = "https://raw.githubusercontent.com/CharlieS1103/spicetify-extensions/main/adblock/adblock.js";
     hash = "sha256-Uj8afW1sAKUKkUwF88JQrD2U+PJf8q3bG+7IF0e8tpk=";
@@ -18,19 +29,13 @@ let
     hash = "sha256-cn5aL5E39L536sg9I0oM6FjF1hjn/1YRam3vAXk/w/g=";
   };
 
-  # Single derivation bundling ALL extensions into one directory.
-  # Built-in extensions come from nixpkgs spicetify-cli, community ones from fetchurl.
-  # Everything resolves to nix-store paths — no brew or runtime path dependencies.
+  # Single derivation bundling all extensions into one flat directory.
   spiceExtensions = pkgs.runCommand "spicetify-extensions" {
-    inherit adblock hidePodcasts;
+    inherit keyboardShortcut shuffle adblock hidePodcasts;
   } ''
     mkdir -p $out
-
-    # Built-in extensions — from the nixpkgs spicetify-cli package
-    cp "${pkgs.spicetify-cli}/libexec/Extensions/keyboardShortcut.js" "$out/"
-    cp "${pkgs.spicetify-cli}/libexec/Extensions/shuffle+.js" "$out/"
-
-    # Community extensions
+    cp "$keyboardShortcut" "$out/keyboardShortcut.js"
+    cp "$shuffle" "$out/shuffle+.js"
     cp "$adblock" "$out/adblock.js"
     cp "$hidePodcasts" "$out/hidePodcasts.js"
   '';
@@ -62,7 +67,7 @@ in {
     ];
   });
 
-  # macOS: spotify via homebrew, extensions bundled above
+  # macOS: spotify via homebrew
   home.packages = lib.mkIf isDarwin [ pkgs.spicetify-cli ];
 
   home.file = lib.mkIf isDarwin {
