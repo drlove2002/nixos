@@ -11,6 +11,9 @@
           pager = "delta --color-only --dark --paging=never";
         };
       };
+      gui = {
+        showWorktreePanel = false;
+      };
     };
   };
 }
