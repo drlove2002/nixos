@@ -13,14 +13,14 @@
       {
         on = "y";
         run = [
-          "shell 'for path in \"$@\"; do echo \"file://$path\"; done | wl-copy -t text/uri-list'"
+          "shell 'for path in \"$@\"; do echo \"file://$path\"; done | pbcopy'"
           "yank"
         ];
         desc = "Yank + Clipboard";
       }
       {
         on = ["c" "c"];
-        run = "shell 'cat \"$@\" | wl-copy'";
+        run = "shell 'cat \"$@\" | pbcopy'";
         desc = "File content -> clipboard";
       }
       {

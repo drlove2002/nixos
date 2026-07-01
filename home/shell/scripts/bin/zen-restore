@@ -1,44 +1,33 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-MOUNT="${ZEN_BACKUP_MOUNT:-/data}"
-BACKUP="$MOUNT/backup"
-ARCHIVE="$BACKUP/zen.tar.zst"
-# Updated path after migration
-PROFILE="$HOME/.config/zen/love"
+export PATH="$HOME/.nix-profile/bin:/run/current-system/sw/bin:/usr/bin:/bin"
 
-# OS detection: use diskutil on macOS, findmnt on Linux
-_is_mounted() {
-  if [[ "$(uname)" == "Darwin" ]]; then
-    diskutil info "$1" >/dev/null 2>&1
-  else
-    findmnt --target "$1" >/dev/null 2>&1
-  fi
-}
-
-# Check drive is mounted
-if ! _is_mounted "$MOUNT"; then
-  echo "Backup drive not mounted — cannot restore"
-  exit 1
+if [[ "$(uname)" == "Darwin" ]]; then
+  PROFILE="${ZEN_PROFILE:-$HOME/Library/Application Support/Zen/Profiles/sudiproy}"
+else
+  PROFILE="${ZEN_PROFILE:-$HOME/.config/zen/love}"
 fi
 
-# Check archive exists
+BACKUP_DIR="${ZEN_BACKUP_DIR:-$HOME/backup}"
+ARCHIVE="$BACKUP_DIR/zen-profile.tar.zst"
+
 if [ ! -f "$ARCHIVE" ]; then
   echo "No backup archive found at: $ARCHIVE"
   exit 1
 fi
 
-# Make sure Zen isn't running
 if pgrep -x "zen" > /dev/null || pgrep -x "zen-beta" > /dev/null; then
-  echo "Zen Browser is running — please close it first"
+  echo "Zen Browser is running — close it first"
   exit 1
 fi
 
-# Create profile dir if missing
-mkdir -p "$PROFILE"
+if [ -d "$PROFILE" ]; then
+  mv "$PROFILE" "${PROFILE}.bak.$(date +%Y%m%d-%H%M%S)"
+  echo "Old profile moved to backup"
+fi
 
-echo "Restoring from $ARCHIVE to $PROFILE..."
-
-tar --zstd -xf "$ARCHIVE" -C "$PROFILE"
-
-echo "Done 🧡 — you can now launch Zen"
+mkdir -p "$(dirname "$PROFILE")"
+echo "Restoring Zen profile from $ARCHIVE..."
+zstd -d -c "$ARCHIVE" | tar -xf - -C "$(dirname "$PROFILE")"
+echo "Done"

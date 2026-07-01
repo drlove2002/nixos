@@ -1,72 +1,26 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PROFILE="$HOME/.config/zen/love"
-MOUNT="${ZEN_BACKUP_MOUNT:-/data}"
-BACKUP="$MOUNT/backup"
-ARCHIVE="$BACKUP/zen.tar.zst"
+export PATH="/etc/profiles/per-user/sudiproy/bin:$HOME/.nix-profile/bin:/run/current-system/sw/bin:/usr/bin:/bin"
 
-# OS detection: use diskutil on macOS, findmnt on Linux
-_is_mounted() {
-  if [[ "$(uname)" == "Darwin" ]]; then
-    diskutil info "$1" >/dev/null 2>&1
-  else
-    findmnt --target "$1" >/dev/null 2>&1
-  fi
-}
-
-if ! _is_mounted "$MOUNT"; then
-  echo "Backup drive not mounted — skipping Zen backup"
-  exit 0
+if [[ "$(uname)" == "Darwin" ]]; then
+  PROFILE="${ZEN_PROFILE:-$HOME/Library/Application Support/Zen/Profiles/sudiproy}"
+else
+  PROFILE="${ZEN_PROFILE:-$HOME/.config/zen/love}"
 fi
+
+BACKUP_DIR="${ZEN_BACKUP_DIR:-$HOME/backup}"
+ARCHIVE="$BACKUP_DIR/zen-profile.tar.zst"
+
+mkdir -p "$BACKUP_DIR"
+rm -f "$ARCHIVE"
 
 if [ ! -d "$PROFILE" ]; then
   echo "Profile folder not found: $PROFILE"
-  exit 0
+  exit 1
 fi
 
-if [ ! -d "$BACKUP" ]; then
-  echo "Creating backup directory: $BACKUP"
-  mkdir -p "$BACKUP"
-  chown love:love "$BACKUP"
-fi
-
-# Define files as array
-files=(
-  "storage"
-  "places.sqlite"
-  "cookies.sqlite"
-  "cert9.db"
-  "key4.db"
-  "logins.json"
-  "extension-preferences.json"
-  "extensions.json"
-  "extension-settings.json"
-  "search.json.mozlz4"
-  "sessionCheckpoints.json"
-  "sessionstore.jsonlz4"
-  "prefs.js"
-  "storage.sqlite"
-  "containers.json"
-  "zen-keyboard-shortcuts.json"
-)
-
-# Filter only existing files
-existing_files=()
-for file in "${files[@]}"; do
-  if [ -e "$PROFILE/$file" ]; then
-    existing_files+=("$file")
-  fi
-done
-
-# Only tar existing files (no errors!)
-if [ ${#existing_files[@]} -gt 0 ]; then
-  echo "Archiving ${#existing_files[@]} files…"
-  tar --zstd -cf "$ARCHIVE" \
-    -C "$PROFILE" \
-    "${existing_files[@]}"
-  echo "Done 🧡"
-else
-  echo "No files to backup"
-fi
-
+echo "Archiving Zen profile from $PROFILE..."
+tar -cf - -C "$(dirname "$PROFILE")" "$(basename "$PROFILE")" | zstd -3 -f -o "$ARCHIVE"
+echo "Done"
+ls -lh "$ARCHIVE"

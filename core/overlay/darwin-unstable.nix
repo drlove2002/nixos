@@ -14,6 +14,8 @@
           driverLink = driver;
           passthru = (oa.passthru or {}) // { driverLink = driver; };
         });
+
+        hammerspoon = final.callPackage ./hammerspoon.nix {};
       }
     )
   ];

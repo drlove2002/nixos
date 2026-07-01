@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Ensure basic utilities are on PATH (launchd runs with minimal env)
+export PATH="$HOME/.nix-profile/bin:/run/current-system/sw/bin:/usr/bin:/bin"
+
+# zed-backup — archives Zed editor config to ~/backup/
+# Mirrors the zen-backup pattern but for Zed, not Zen browser
+
+BACKUP_DIR="${ZED_BACKUP_DIR:-$HOME/backup}"
+ARCHIVE="$BACKUP_DIR/zed-config.tar.zst"
+ZED_NIX_DIR="$HOME/.config/nixos/home/programs/zed"
+ZED_CONFIG="$HOME/.config/zed"
+
+mkdir -p "$BACKUP_DIR"
+
+srcs=()
+
+# Archive the nix-managed zed config (settings, keymap, themes)
+if [ -d "$ZED_NIX_DIR" ]; then
+  srcs+=("$ZED_NIX_DIR")
+fi
+
+# Archive runtime zed config if it exists and has non-symlink content
+if [ -d "$ZED_CONFIG/prompts" ]; then
+  srcs+=("$ZED_CONFIG/prompts")
+fi
+
+if [ ${#srcs[@]} -eq 0 ]; then
+  echo "No Zed config found — nothing to backup"
+  exit 0
+fi
+
+echo "Archiving ${#srcs[@]} Zed config roots…"
+tar -cf - -C "$HOME" "${srcs[@]#$HOME/}" | zstd -3 -o "$ARCHIVE"
+echo "Done 🧡"

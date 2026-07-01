@@ -9,6 +9,7 @@
     pkg-config
 
     nixd
+    nil
     alejandra
     markdownlint-cli2
 

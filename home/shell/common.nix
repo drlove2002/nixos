@@ -6,10 +6,13 @@
     bat
     eza
     fd
+    ffmpeg
     zip
     unzip
     ripgrep
     gum # For shell scripts TUI styling
+    zstd
+    gnutar
   ] ++ lib.optionals (!pkgs.stdenv.hostPlatform.isDarwin) [
     wl-clipboard
     perf

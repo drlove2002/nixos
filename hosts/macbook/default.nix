@@ -5,7 +5,9 @@
 }: {
   imports = [
     ./system.nix
+    ./db.nix
     ./../../core/overlay/darwin-unstable.nix
+    inputs.nix-homebrew.darwinModules.nix-homebrew
   ];
 
   nixpkgs.hostPlatform = "aarch64-darwin";

@@ -25,4 +25,6 @@
     config.lib.file.mkOutOfStoreSymlink "${config.xdg.configHome}/nixos/home/programs/zed/keymap.json"
   );
 
+  home.file."${config.xdg.configHome}/zed/themes/kanagawa.json".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.xdg.configHome}/nixos/home/programs/zed/themes/kanagawa.json";
 }

@@ -4,8 +4,8 @@
   programs.kitty = {
     enable = true;
     settings = {
-      font_family = "Iosevka Nerd Font";
-      font_size = 13;
+      font_family = "Iosevka Nerd Font Mono";
+      font_size = 15;
       enable_audio_bell = false;
       shell = "zsh";
       cursor_trail = 3;

@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+export PATH="$HOME/.nix-profile/bin:/run/current-system/sw/bin:/usr/bin:/bin"
+
+# zed-restore — restores Zed config from ~/backup/zed-config.tar.zst
+
+BACKUP_DIR="${ZED_BACKUP_DIR:-$HOME/backup}"
+ARCHIVE="$BACKUP_DIR/zed-config.tar.zst"
+
+if [ ! -f "$ARCHIVE" ]; then
+  echo "No Zed backup found at: $ARCHIVE"
+  exit 1
+fi
+
+echo "Restoring Zed config from $ARCHIVE…"
+zstd -d -c "$ARCHIVE" | tar -xf - -C "$HOME"
+echo "Restored ✅"

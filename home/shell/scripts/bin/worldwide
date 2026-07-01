@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+WW=~/Projects/worldwide
+SUBS=(wwapi wwbot wwideas wwpage wwvc)
+
+ZED_CMD="${ZED_CMD:-zeditor}"
+
+open -a Zed "$WW/${SUBS[0]}"
+sleep 1
+
+for sub in "${SUBS[@]:1}"; do
+  "$ZED_CMD" --add "$WW/$sub" &
+done
+wait
