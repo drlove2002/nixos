@@ -75,7 +75,11 @@ in {
       spicetify config extensions "adblock.js|hidePodcasts.js|keyboardShortcut.js|shuffle+.js" 2>/dev/null || true
 
       # Backup if needed, then apply
-      if ! spicetify backup apply 2>/dev/null; then
+      if spicetify backup apply 2>/dev/null; then
+        # Spicetify patches break macOS code signing — re-sign ad-hoc
+        xattr -cr /Applications/Spotify.app 2>/dev/null || true
+        sudo codesign --force --deep --sign - /Applications/Spotify.app 2>/dev/null || true
+      else
         echo "spicetify backup/apply failed" >&2
       fi
     '';
