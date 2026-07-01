@@ -27,25 +27,12 @@ cleanup() {
 trap cleanup EXIT
 
 echo "Updating darwin-relevant flake inputs (excluding Linux-only: hyprland, quickshell, lanzaboote)..."
-nix flake lock \
-  --update-input nixpkgs \
-  --update-input nixpkgs-unstable \
-  --update-input nix-darwin \
-  --update-input nix-homebrew \
-  --update-input homebrew-core \
-  --update-input homebrew-cask \
-  --update-input homebrew-sikarugir \
-  --update-input home-manager \
-  --update-input zen-browser \
-  --update-input nix-vscode-extensions \
-  --update-input nixcord \
-  --update-input spicetify-nix \
-  --update-input stylix \
-  --update-input firefox-addons \
-  --update-input nur \
-  --update-input nix-index-database \
-  --update-input llm-agents \
-  --update-input ngrok
+nix flake update \
+  nixpkgs nixpkgs-unstable nix-darwin \
+  nix-homebrew homebrew-core homebrew-cask homebrew-sikarugir \
+  home-manager zen-browser nix-vscode-extensions nixcord \
+  spicetify-nix stylix firefox-addons \
+  nur nix-index-database llm-agents ngrok
 
 echo "Building updated darwin generation..."
 if ! darwin-rebuild build --flake "$REPO"; then
