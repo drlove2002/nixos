@@ -13,6 +13,13 @@ in {
       path = "${cache}/zsh/history";
     };
 
+    initExtra = ''
+      # Auto-start tmux on interactive shell (if not already inside one)
+      if [[ -z "$TMUX" ]] && (( $+commands[tmux] )); then
+        tmux new-session -A -s main
+      fi
+    '';
+
     oh-my-zsh = {
       enable = true;
       plugins = [
