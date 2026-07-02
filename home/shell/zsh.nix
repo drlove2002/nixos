@@ -40,13 +40,9 @@ in {
       export LESSHISTFILE="${cache}/less/history"
       export LESSKEY="${c}/less/lesskey"
 
-      # Auto-start tmux: each kitty tab = a new tmux window in the shared session
+      # Auto-start tmux: every terminal attaches to the main session
       if [[ -z "$TMUX" ]] && (( $+commands[tmux] )); then
-        if tmux has-session -t main 2>/dev/null; then
-          exec tmux new-window -t main \; attach-session -t main
-        else
-          exec tmux new-session -s main
-        fi
+        exec tmux new-session -A -s main
       fi
     '';
   };
