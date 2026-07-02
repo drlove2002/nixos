@@ -69,30 +69,29 @@ in {
         echo "spicetify-cli not found — skipping spotify mod" >&2
         exit 0
       fi
-
-      XPUI="/Applications/Spotify.app/Contents/Resources/Apps/xpui"
-      XPUI_SPA="/Applications/Spotify.app/Contents/Resources/Apps/xpui.spa"
-
-      # 1. Apply spicetify extensions (hidePodcasts, keyboardShortcut, shuffle+)
-      spicetify config extensions "hidePodcasts.js|keyboardShortcut.js|shuffle+.js" 2>/dev/null || true
-      spicetify backup apply 2>/dev/null || true
-
-      # 2. Apply SpotX-style adblock patches to extracted JS files.
-      #    These disable ad services at the code level and persist
-      #    across spicetify apply as long as spicetify doesn't re-pack.
-      #    Each patch targets a different ad vector.
-      if [ -d "$XPUI" ]; then
-        # Patch 1: block ad API endpoints (/ads/v1 → /abs/v1 etc.)
-        perl -0777pi -w -e 's{/a\Kd(?=s(?:/v[12]|/v2/[ts]e))}{b}gs' "$XPUI"/*.js "$XPUI"/vendor*.js 2>/dev/null || true
-
-        # Patch 2: billboard and leaderboard ads
-        perl -0777pi -w -e 's{adsEnabled:!\K0}{1}s' "$XPUI"/*.js "$XPUI"/vendor*.js 2>/dev/null || true
-
-        # Patch 3: disable ad cosmos (audio ads)
-        perl -0777pi -w -e 's{(case .:|async enable\(.\)\{)(this\.enabled=.+?\(.{1,3},"audio"\))((;case 4:)?this\.subscription=this\.audioApi).+?this\.onAdMessage\)}{$1$3.cosmosConnector.increaseStreamTime(-100000000000)}s' "$XPUI"/*.js "$XPUI"/vendor*.js 2>/dev/null || true
+      if [ ! -f "/Applications/Spotify.app/Contents/Resources/Apps/xpui.spa" ]; then
+        echo "Spotify xpui.spa not found — skipping" >&2
+        exit 0
       fi
 
-      # 3. Re-sign (spicetify and patches both break the signature)
+      SPOTX="/tmp/spotx.sh"
+      SPOTX_URL="https://raw.githubusercontent.com/SpotX-Official/SpotX-Bash/main/spotx.sh"
+
+      # Phase 1 — restore to clean state, apply SpotX adblock patches
+      spicetify restore 2>/dev/null || true
+      if [ ! -f "$SPOTX" ]; then
+        curl -sSL "$SPOTX_URL" -o "$SPOTX" 2>/dev/null || true
+      fi
+      if [ -f "$SPOTX" ]; then
+        bash "$SPOTX" -f 2>/dev/null || true
+      fi
+
+      # Phase 2 — back up the SpotX-patched xpui.spa, then apply extensions
+      spicetify config extensions "hidePodcasts.js|keyboardShortcut.js|shuffle+.js" 2>/dev/null || true
+      spicetify backup 2>/dev/null || true
+      spicetify apply 2>/dev/null || true
+
+      # Phase 3 — re-sign (modifications break the code signature)
       xattr -cr /Applications/Spotify.app 2>/dev/null || true
       codesign --force --deep --sign - /Applications/Spotify.app 2>/dev/null || true
     '';
