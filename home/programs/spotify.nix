@@ -20,9 +20,10 @@ let
     url = "https://raw.githubusercontent.com/spicetify/cli/v2.42.1/Extensions/shuffle+.js";
     hash = "sha256-3q/DI2tCs0gbRYOZjhFjzBFmn5/vtoNYA7YWNC1Zcj8=";
   };
+  # More comprehensive adblock — hooks into webpack to disable ad services
   adblock = pkgs.fetchurl {
-    url = "https://raw.githubusercontent.com/CharlieS1103/spicetify-extensions/main/adblock/adblock.js";
-    hash = "sha256-Uj8afW1sAKUKkUwF88JQrD2U+PJf8q3bG+7IF0e8tpk=";
+    url = "https://raw.githubusercontent.com/Daksh777/SpotifyNoPremium/master/adblock.js";
+    hash = "sha256-CE5G7wnJtgD3ExnPACSGhu1mMULuCR2TlIcec1EYh70=";
   };
   hidePodcasts = pkgs.fetchurl {
     url = "https://raw.githubusercontent.com/theRealPadster/spicetify-hide-podcasts/main/hidePodcasts.js";

@@ -49,8 +49,9 @@
       "homebrew/homebrew-cask"
       "Sikarugir-App/sikarugir"
       "SergioBenitez/osxct"
+      "FiloSottile/musl-cross"
     ];
-    brews = ["sergiobenitez/osxct/x86_64-unknown-linux-gnu" "spicetify-cli"];
+    brews = ["sergiobenitez/osxct/x86_64-unknown-linux-gnu" "musl-cross" "spicetify-cli"];
     casks = ["sikarugir" "spotify"];
     onActivation = {
       upgrade = true;
@@ -59,6 +60,13 @@
   };
 
   nix-homebrew = let
+    musl-cross-src = builtins.fetchTree {
+      type = "github";
+      owner = "FiloSottile";
+      repo = "homebrew-musl-cross";
+      rev = "705df29f2bdb4ea5e7c2ade052c92506e8c3c74a";
+      narHash = "sha256-42BPsdnsz9HgSA3i+mBzMoBEegk50ZomLIW3EGuJIAk=";
+    };
     osxct-src = builtins.fetchTree {
       type = "github";
       owner = "SergioBenitez";
@@ -75,6 +83,7 @@
       "homebrew/homebrew-core" = homebrew-core;
       "homebrew/homebrew-cask" = homebrew-cask;
       "Sikarugir-App/homebrew-sikarugir" = homebrew-sikarugir;
+      "FiloSottile/homebrew-musl-cross" = musl-cross-src;
       "SergioBenitez/homebrew-osxct" = osxct-src;
     };
     mutableTaps = false;
@@ -82,7 +91,7 @@
       formulae = [];
       casks = [];
       commands = [];
-      taps = ["Sikarugir-App/sikarugir" "SergioBenitez/osxct"];
+      taps = ["Sikarugir-App/sikarugir" "SergioBenitez/osxct" "FiloSottile/musl-cross"];
     };
   };
 

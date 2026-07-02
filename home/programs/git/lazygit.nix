@@ -13,6 +13,7 @@
       };
       gui = {
         showWorktreePanel = false;
+        showCommandLog = false;
       };
     };
   };
