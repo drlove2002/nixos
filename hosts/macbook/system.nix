@@ -7,7 +7,12 @@
   ...
 }: {
   # Unlock sudo with Touch ID instead of password
-  security.pam.services.sudo_local.touchIdAuth = true;
+  # Using pam_tid.so.2 — macOS Sequoia renamed it from pam_tid.so
+  # pam-reattach makes Touch ID work inside tmux/screen sessions
+  security.pam.services.sudo_local.text = ''
+    auth       optional       ${pkgs.pam-reattach}/lib/pam/pam_reattach.so
+    auth       sufficient     pam_tid.so.2
+  '';
 
   # macOS system defaults managed by nix-darwin
   system.defaults = {
@@ -26,7 +31,7 @@
 
     trackpad = {
       Clicking = true;
-      TrackpadThreeFingerDrag = false;
+      TrackpadThreeFingerDrag = true;
     };
 
     NSGlobalDomain = {
@@ -140,9 +145,7 @@
     defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadFourFingerHorizSwipeGesture -int 2
     defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadTwoFingerDoubleTapGesture -int 1
     defaults write NSGlobalDomain com.apple.trackpad.forceClick -bool false
-
-    # Preserve 3-finger select — activateSettings resets these
-    defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerDrag -bool false
+    defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerDrag -bool true
 
     /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
   '';
