@@ -26,6 +26,9 @@
 
       # Re-number windows when one closes
       set -g renumber-windows on
+
+      # Pass extended key sequences (C-S-Left, etc.)
+      set -g extended-keys on
     '';
   };
 }
