@@ -26,7 +26,7 @@
 
     trackpad = {
       Clicking = true;
-      TrackpadThreeFingerDrag = true;
+      TrackpadThreeFingerDrag = false;
     };
 
     NSGlobalDomain = {
@@ -140,6 +140,10 @@
     defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadFourFingerHorizSwipeGesture -int 2
     defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadTwoFingerDoubleTapGesture -int 1
     defaults write NSGlobalDomain com.apple.trackpad.forceClick -bool false
+
+    # Preserve 3-finger select — activateSettings resets these
+    defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerDrag -bool false
+
     /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
   '';
 }
