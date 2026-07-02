@@ -6,6 +6,5 @@
     ./ai-docs.nix
     ./gaming.nix
     ./gui-xdg.nix
-    ./tmux.nix
   ];
 }
