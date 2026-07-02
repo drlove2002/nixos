@@ -65,6 +65,8 @@ in {
 
   home.activation = lib.mkIf isDarwin {
     applySpicetify = lib.hm.dag.entryAfter ["linkGeneration"] ''
+      # Ensure spicetify-cli is in PATH (homebrew not on PATH during activation)
+      export PATH="/opt/homebrew/bin:$PATH"
       if ! command -v spicetify &>/dev/null; then
         echo "spicetify-cli not found — skipping spotify mod" >&2
         exit 0

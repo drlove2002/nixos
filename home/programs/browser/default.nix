@@ -33,6 +33,8 @@
       ZEN_DIR="$HOME/Library/Application Support/Zen"
       ZEN_PROFILE="$ZEN_DIR/Profiles/${username}"
       mkdir -p "$ZEN_PROFILE/extensions"
+      # Ensure writable — linkGeneration below will fail on root-owned dirs
+      [ -d "$ZEN_PROFILE/extensions" ] && chmod 755 "$ZEN_PROFILE" "$ZEN_PROFILE/extensions" 2>/dev/null || true
       PROFILES_INI="$ZEN_DIR/profiles.ini"
       if [ ! -f "$PROFILES_INI" ]; then
         {
