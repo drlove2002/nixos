@@ -8,7 +8,6 @@
 let
   isDarwin = pkgs.stdenv.hostPlatform.isDarwin;
 
-  # All extension files fetched from their sources with pinned hashes.
   keyboardShortcut = pkgs.fetchurl {
     url = "https://raw.githubusercontent.com/spicetify/cli/v2.42.1/Extensions/keyboardShortcut.js";
     hash = "sha256-hQlJpCFF7Ju8ep4KcWRQ52ZO2SasF25jViUelh1HBO8=";
@@ -22,7 +21,6 @@ let
     hash = "sha256-cn5aL5E39L536sg9I0oM6FjF1hjn/1YRam3vAXk/w/g=";
   };
 
-  # Bundle non-adblock extensions (adblock handled via SpotX instead)
   spiceExtensions = pkgs.runCommand "spicetify-extensions" {
     inherit keyboardShortcut shuffle hidePodcasts;
   } ''
@@ -42,18 +40,13 @@ in {
   in {
     enable = true;
     enabledExtensions = with spicePkgs.extensions; [
-      adblock
-      hidePodcasts
-      shuffle
-      keyboardShortcut
+      adblock hidePodcasts shuffle keyboardShortcut
     ];
     enabledCustomApps = with spicePkgs.apps; [
-      newReleases
-      ncsVisualizer
+      newReleases ncsVisualizer
     ];
     enabledSnippets = with spicePkgs.snippets; [
-      rotatingCoverart
-      pointer
+      rotatingCoverart pointer
     ];
   });
 
@@ -65,42 +58,40 @@ in {
 
   home.activation = lib.mkIf isDarwin {
     applySpicetify = lib.hm.dag.entryAfter ["linkGeneration"] ''
-      # Ensure spicetify-cli is in PATH (homebrew not on PATH during activation)
       export PATH="/opt/homebrew/bin:$PATH"
-      if ! command -v spicetify &>/dev/null; then
-        echo "spicetify-cli not found — skipping spotify mod" >&2
-        exit 0
-      fi
-      if [ ! -f "/Applications/Spotify.app/Contents/Resources/Apps/xpui.spa" ]; then
-        echo "Spotify xpui.spa not found — skipping" >&2
-        exit 0
+      SPOTIFY="/Applications/Spotify.app"
+      XPUI_SPA="$SPOTIFY/Contents/Resources/Apps/xpui.spa"
+
+      command -v spicetify &>/dev/null || { echo "spicetify-cli not found — skipping" >&2; exit 0; }
+      [ -d "$SPOTIFY" ] || { echo "Spotify.app not found — skipping" >&2; exit 0; }
+
+      # Ensure xpui.spa exists — SpotX needs the packed file, not the extracted dir
+      if [ ! -f "$XPUI_SPA" ]; then
+        spicetify restore 2>/dev/null || true
+        # If still no spa, bootstrap it
+        if [ ! -f "$XPUI_SPA" ]; then
+          spicetify backup apply 2>/dev/null || true
+          spicetify restore 2>/dev/null || true
+        fi
       fi
 
+      [ -f "$XPUI_SPA" ] || { echo "xpui.spa unavailable after restore — skipping" >&2; exit 0; }
+
+      # Download SpotX
       SPOTX="/tmp/spotx.sh"
-      SPOTX_URL="https://raw.githubusercontent.com/SpotX-Official/SpotX-Bash/main/spotx.sh"
+      [ -f "$SPOTX" ] || curl -sSL "https://raw.githubusercontent.com/SpotX-Official/SpotX-Bash/main/spotx.sh" -o "$SPOTX" 2>/dev/null || true
 
-      # Download SpotX if needed
-      if [ ! -f "$SPOTX" ]; then
-        curl -sSL "$SPOTX_URL" -o "$SPOTX" 2>/dev/null || true
-      fi
+      # Patch with SpotX (adblock + block updates)
+      [ -f "$SPOTX" ] && bash "$SPOTX" -f -B 2>/dev/null || true
 
-      # Phase 1 — restore to clean state
-      spicetify restore 2>/dev/null || true
-
-      # Phase 2 — apply SpotX adblock patches + block auto-updates
-      # Spotify silently updates and newer versions break SpotX's patches.
-      if [ -f "$SPOTX" ]; then
-        bash "$SPOTX" -f -B 2>/dev/null || true
-      fi
-
-      # Phase 2 — back up the SpotX-patched xpui.spa, then apply extensions
+      # Back up the patched xpui.spa and apply extensions
       spicetify config extensions "hidePodcasts.js|keyboardShortcut.js|shuffle+.js" 2>/dev/null || true
       spicetify backup 2>/dev/null || true
       spicetify apply 2>/dev/null || true
 
-      # Phase 3 — re-sign (modifications break the code signature)
-      xattr -cr /Applications/Spotify.app 2>/dev/null || true
-      codesign --force --deep --sign - /Applications/Spotify.app 2>/dev/null || true
+      # Re-sign
+      xattr -cr "$SPOTIFY" 2>/dev/null || true
+      codesign --force --deep --sign - "$SPOTIFY" 2>/dev/null || true
     '';
   };
 }
