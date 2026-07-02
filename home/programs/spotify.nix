@@ -79,13 +79,18 @@ in {
       SPOTX="/tmp/spotx.sh"
       SPOTX_URL="https://raw.githubusercontent.com/SpotX-Official/SpotX-Bash/main/spotx.sh"
 
-      # Phase 1 — restore to clean state, apply SpotX adblock patches
-      spicetify restore 2>/dev/null || true
+      # Download SpotX if needed
       if [ ! -f "$SPOTX" ]; then
         curl -sSL "$SPOTX_URL" -o "$SPOTX" 2>/dev/null || true
       fi
+
+      # Phase 1 — restore to clean state
+      spicetify restore 2>/dev/null || true
+
+      # Phase 2 — apply SpotX adblock patches + block auto-updates
+      # Spotify silently updates and newer versions break SpotX's patches.
       if [ -f "$SPOTX" ]; then
-        bash "$SPOTX" -f 2>/dev/null || true
+        bash "$SPOTX" -f -B 2>/dev/null || true
       fi
 
       # Phase 2 — back up the SpotX-patched xpui.spa, then apply extensions
