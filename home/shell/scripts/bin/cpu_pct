@@ -1,0 +1,2 @@
+#!/bin/bash
+top -l 1 -n 0 | grep 'CPU usage' | awk '{printf "%.0f", $3+$5}'

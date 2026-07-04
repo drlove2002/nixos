@@ -54,7 +54,7 @@
       set -g window-status-current-style "fg=#E6C384,bold"
 
       set -g status-left ""
-      set -g status-right "#[fg=#8ba4b0]#S"
+      set -g status-right "#[fg=#8ba4b0]🧠#(cpu_pct)%%  💾#(mem_pct)%%  #S"
 
       set -g window-status-format " #I:#W "
       set -g window-status-current-format "#[bold] #I:#W "

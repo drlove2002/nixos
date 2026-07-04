@@ -56,7 +56,7 @@
       "FiloSottile/musl-cross"
     ];
     brews = ["musl-cross" "spicetify-cli"];
-    casks = ["sikarugir" "spotify"];
+    casks = ["sikarugir" "spotify" "cloudflare-warp" "protonvpn"];
     onActivation = {
       upgrade = true;
       autoUpdate = true;
@@ -112,7 +112,7 @@
   system.primaryUser = "sudiproy";
   system.stateVersion = 6;
 
-  # Symlink Home Manager .apps directly into /Applications
+  # Symlink Home Manager .apps into /Applications
   system.activationScripts.applications.text = ''
     hm_apps="/Users/sudiproy/.local/share/nix-apps"
     if [ -d "$hm_apps" ]; then
@@ -130,6 +130,15 @@
   # Trackpad settings must be written directly — activateSettings alone doesn't
   # reliably apply them to the running session after a system activation.
   system.activationScripts.postActivation.text = ''
+    # Symlink system-level .apps (must run post-switch — /run/current-system isn't updated yet during "applications")
+    system_apps="/run/current-system/Applications"
+    if [ -d "$system_apps" ]; then
+      for app in "$system_apps"/*.app; do
+        [ -d "$app" ] || continue
+        name="$(basename "$app")"
+        ln -sfn "$app" "/Applications/$name"
+      done
+    fi
     defaults write com.apple.AppleMultitouchTrackpad Clicking -bool true
     defaults write com.apple.AppleMultitouchTrackpad FirstClickThreshold -int 0
     defaults write com.apple.AppleMultitouchTrackpad SecondClickThreshold -int 0

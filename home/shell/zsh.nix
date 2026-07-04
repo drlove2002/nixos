@@ -41,7 +41,7 @@ in {
       export LESSKEY="${c}/less/lesskey"
 
       # Auto-start tmux: every terminal attaches to the main session
-      if [[ -z "$TMUX" ]] && (( $+commands[tmux] )); then
+      if [[ -z "$TMUX" ]] && [[ -t 0 ]] && (( $+commands[tmux] )); then
         exec tmux new-session -A -s main
       fi
     '';

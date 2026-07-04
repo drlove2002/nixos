@@ -1,0 +1,2 @@
+#!/bin/bash
+memory_pressure | awk '/System-wide memory free percentage/ {printf "%.0f", 100-$5}'

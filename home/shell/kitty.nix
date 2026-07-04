@@ -144,6 +144,12 @@
       "cmd+backspace" = "send_text all \\x01x";
 
       #
+      # Zoom pane toggle
+      #
+
+      "cmd+z" = "send_text all \\x01z";
+
+      #
       # Sessions
       #
 
