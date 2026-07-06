@@ -18,7 +18,9 @@
 
       enable_audio_bell = false;
 
-      extended_keyboard = "yes";
+      macos_secure_keyboard_entry = "no";
+
+      extended_keyboard = "no";
 
       cursor_trail = 3;
       cursor_trail_decay = "0.1 0.4";

@@ -10,6 +10,7 @@
     ./shell/backup-darwin.nix
     ./desktop/shared.nix
     ./desktop/hammerspoon.nix
+    ./desktop/yabai.nix
   ];
 
   home = {

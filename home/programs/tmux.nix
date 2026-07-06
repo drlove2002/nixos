@@ -1,4 +1,4 @@
-{ ... }:
+{ pkgs, ... }:
 {
   programs.tmux = {
     enable = true;
@@ -12,6 +12,11 @@
     # Ctrl+A
     shortcut = "a";
 
+    plugins = with pkgs.tmuxPlugins; [
+      resurrect
+      continuum
+    ];
+
     extraConfig = ''
       ##### Terminal #####
 
@@ -22,8 +27,15 @@
 
       set -g focus-events on
       set -s extended-keys on
+      set -g extended-keys-format csi-u
       set -as terminal-features ',xterm-256color:extkeys'
       bind-key -n S-Enter send-keys Escape "[13;2u"
+
+      ##### Plugins #####
+
+      # Auto-save/restore session across reboots
+      set -g @continuum-restore 'on'
+      set -g @continuum-save-interval '15'
 
       ##### General #####
 

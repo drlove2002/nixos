@@ -1,10 +1,4 @@
-{
-  inputs,
-  pkgs,
-  lib,
-  config,
-  ...
-}:
+{ inputs, pkgs, lib, config, ... }:
 let
   isDarwin = pkgs.stdenv.hostPlatform.isDarwin;
 
@@ -53,7 +47,7 @@ in {
   home.packages = lib.mkIf isDarwin [ pkgs.spicetify-cli ];
 
   home.file = lib.mkIf isDarwin {
-    "spicetify/Extensions".source = spiceExtensions;
+    ".config/spicetify/Extensions".source = spiceExtensions;
   };
 
   home.activation = lib.mkIf isDarwin {
@@ -85,7 +79,7 @@ in {
       [ -f "$SPOTX" ] && bash "$SPOTX" -f -B 2>/dev/null || true
 
       # Back up the patched xpui.spa and apply extensions
-      spicetify config extensions "hidePodcasts.js|keyboardShortcut.js|shuffle+.js" 2>/dev/null || true
+      spicetify config extensions "hidePodcasts.js|keyboardShortcut.js|shuffle+.js" >/dev/null 2>&1 || true
       spicetify backup 2>/dev/null || true
       spicetify apply 2>/dev/null || true
 

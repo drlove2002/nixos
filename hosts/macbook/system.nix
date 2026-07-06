@@ -126,6 +126,14 @@
     rm -rf "/Applications/Nix Apps" /Users/sudiproy/Applications
   '';
 
+  # Auto-load yabai scripting addition at boot (needed for space/window commands).
+  # Must run as root. Path is stable: /usr/local/bin/yabai-official.
+  system.activationScripts.yabaiSA.text = ''
+    if [ -f /usr/local/bin/yabai-official ]; then
+      /usr/local/bin/yabai-official --load-sa || true
+    fi
+  '';
+
   # Apply new system defaults without logout/login cycle
   # Trackpad settings must be written directly — activateSettings alone doesn't
   # reliably apply them to the running session after a system activation.

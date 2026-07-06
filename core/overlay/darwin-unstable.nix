@@ -16,6 +16,7 @@
         });
 
         hammerspoon = final.callPackage ./hammerspoon.nix {};
+        agent-browser = final.callPackage ./agent-browser.nix {};
       }
     )
   ];

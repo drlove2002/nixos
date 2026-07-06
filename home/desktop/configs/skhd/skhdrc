@@ -1,0 +1,23 @@
+# Workspace switch
+alt - 1 : /usr/local/bin/yabai-official -m space --focus 1
+alt - 2 : /usr/local/bin/yabai-official -m space --focus 2
+alt - 3 : /usr/local/bin/yabai-official -m space --focus 3
+alt - 4 : /usr/local/bin/yabai-official -m space --focus 4
+alt - 5 : /usr/local/bin/yabai-official -m space --focus 5
+alt - 6 : /usr/local/bin/yabai-official -m space --focus 6
+alt - 7 : /usr/local/bin/yabai-official -m space --focus 7
+alt - 8 : /usr/local/bin/yabai-official -m space --focus 8
+alt - 9 : /usr/local/bin/yabai-official -m space --focus 9
+alt - 0 : /usr/local/bin/yabai-official -m space --focus 10
+
+# Move window to workspace (no follow — matches Hyprland)
+alt + shift - 1 : /usr/local/bin/yabai-official -m window --space 1
+alt + shift - 2 : /usr/local/bin/yabai-official -m window --space 2
+alt + shift - 3 : /usr/local/bin/yabai-official -m window --space 3
+alt + shift - 4 : /usr/local/bin/yabai-official -m window --space 4
+alt + shift - 5 : /usr/local/bin/yabai-official -m window --space 5
+alt + shift - 6 : /usr/local/bin/yabai-official -m window --space 6
+alt + shift - 7 : /usr/local/bin/yabai-official -m window --space 7
+alt + shift - 8 : /usr/local/bin/yabai-official -m window --space 8
+alt + shift - 9 : /usr/local/bin/yabai-official -m window --space 9
+alt + shift - 0 : /usr/local/bin/yabai-official -m window --space 10
