@@ -30,28 +30,11 @@ in {
         set +a
       fi
 
-      export RUSTUP_BIN="/opt/homebrew/opt/rustup/bin"
-      case ":$PATH:" in
-        *":$RUSTUP_BIN:"*) ;;
-        *) export PATH="$RUSTUP_BIN:$PATH" ;;
-      esac
-
       export CARGO_HOME="${config.home.homeDirectory}/.cargo"
       case ":$PATH:" in
         *":$CARGO_HOME/bin:"*) ;;
         *) export PATH="$CARGO_HOME/bin:$PATH" ;;
       esac
-
-      if [[ "$OSTYPE" == darwin* ]] && [ -d "/opt/homebrew/opt/libiconv" ]; then
-        case ":$LIBRARY_PATH:" in
-          *":/opt/homebrew/opt/libiconv/lib:"*) ;;
-          *) export LIBRARY_PATH="/opt/homebrew/opt/libiconv/lib''${LIBRARY_PATH:+:$LIBRARY_PATH}" ;;
-        esac
-        case ":$CPATH:" in
-          *":/opt/homebrew/opt/libiconv/include:"*) ;;
-          *) export CPATH="/opt/homebrew/opt/libiconv/include''${CPATH:+:$CPATH}" ;;
-        esac
-      fi
 
       export PNPM_HOME="${config.home.homeDirectory}/.local/share/pnpm"
       case ":$PATH:" in

@@ -57,14 +57,12 @@
     ];
     brews = [
       "bun"
-      "libiconv"
       "musl-cross"
       "node@22"
       "pkg-config"
       "pnpm"
       "protobuf"
       "python@3.12"
-      "rustup"
       "spicetify-cli"
       "uv"
     ];
