@@ -1,26 +1,16 @@
-{
-  pkgs,
-  ...
-}: {
+{pkgs, ...}: {
   home.packages = with pkgs; [
     gcc
     gnumake
     cmake
-    pkg-config
-
     nixd
     nil
     alejandra
     markdownlint-cli2
 
-    nodePackages.pnpm
-
-    python312
-    uv
     ruff
     pyright
 
-    protobuf
     # texliveFull # TODO: huge, test separately
     lua-language-server
     marksman

@@ -1,12 +1,3 @@
-{pkgs, ...}: {
-  home.packages = with pkgs; [
-    rustc
-    cargo
-    rustfmt
-    clippy
-    rust-analyzer
-    cargo-cache
-    cargo-sweep
-    sqlx-cli
-  ];
-}
+# Rust is managed by Homebrew `rustup` on macOS.
+# Run rustup toolchain/target setup after activating nix-darwin.
+{...}: {}

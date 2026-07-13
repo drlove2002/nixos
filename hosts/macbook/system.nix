@@ -55,7 +55,19 @@
       "Sikarugir-App/sikarugir"
       "FiloSottile/musl-cross"
     ];
-    brews = ["musl-cross" "spicetify-cli"];
+    brews = [
+      "bun"
+      "libiconv"
+      "musl-cross"
+      "node@22"
+      "pkg-config"
+      "pnpm"
+      "protobuf"
+      "python@3.12"
+      "rustup"
+      "spicetify-cli"
+      "uv"
+    ];
     casks = ["sikarugir" "spotify" "cloudflare-warp" "protonvpn"];
     onActivation = {
       upgrade = true;
@@ -71,7 +83,6 @@
       rev = "705df29f2bdb4ea5e7c2ade052c92506e8c3c74a";
       narHash = "sha256-42BPsdnsz9HgSA3i+mBzMoBEegk50ZomLIW3EGuJIAk=";
     };
-
   in {
     enable = true;
     enableRosetta = true;
@@ -82,7 +93,6 @@
       "homebrew/homebrew-cask" = homebrew-cask;
       "Sikarugir-App/homebrew-sikarugir" = homebrew-sikarugir;
       "FiloSottile/homebrew-musl-cross" = musl-cross-src;
-
     };
     mutableTaps = false;
     trust = {
